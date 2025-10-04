@@ -13,6 +13,12 @@ export default function QuestionDetail() {
   const [loading, setLoading] = useState(true);
   const [newAnswer, setNewAnswer] = useState("");
 
+  const getUserVote = (userVotes) => {
+    if (!user || !userVotes) return 0;
+    const voteObj = userVotes.find(v => v.user?.toString() === user.id);
+    return voteObj ? voteObj.vote : 0;
+  };
+
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -25,24 +31,57 @@ export default function QuestionDetail() {
     }
   };
 
-  useEffect(() => {
-    fetchData();
-  }, [id]);
+  useEffect(() => { fetchData(); }, [id]);
 
-  // Post new answer
+  // Vote question
+  const handleVoteQuestion = async (voteDirection) => {
+    if (!user?.token) return alert("Login to vote");
+    const newVote = getUserVote(question.userVotes) === voteDirection ? 0 : voteDirection;
+
+    try {
+      const res = await axios.patch(
+        `http://localhost:5000/api/questions/${id}/vote`,
+        { vote: newVote },
+        { headers: { Authorization: `Bearer ${user.token}` } }
+      );
+      setQuestion(res.data);
+    } catch (err) {
+      alert(err.response?.data?.msg || "Failed to vote");
+    }
+  };
+
+  // Vote answer
+  const handleVoteAnswer = async (answerId, voteDirection) => {
+    if (!user?.token) return alert("Login to vote");
+    try {
+      const res = await axios.patch(
+        `http://localhost:5000/api/answers/${id}/${answerId}/vote`,
+        { vote: voteDirection },
+        { headers: { Authorization: `Bearer ${user.token}` } }
+      );
+      setQuestion(prev => ({
+        ...prev,
+        answers: prev.answers.map(a => (a._id === answerId ? res.data : a))
+      }));
+    } catch (err) {
+      alert(err.response?.data?.msg || "Failed to vote answer");
+    }
+  };
+
+  // Post answer
   const handleAnswerSubmit = async (e) => {
     e.preventDefault();
     if (!newAnswer.trim()) return;
-    if (!user?.token) return alert("You must log in to post an answer!");
+    if (!user?.token) return alert("Login to post an answer");
 
     try {
-      await axios.post(
-        `http://localhost:5000/api/questions/${id}/answer`,
+      const res = await axios.post(
+        `http://localhost:5000/api/answers/${id}`,
         { body: newAnswer },
         { headers: { Authorization: `Bearer ${user.token}` } }
       );
+      setQuestion(prev => ({ ...prev, answers: [...prev.answers, res.data] }));
       setNewAnswer("");
-      fetchData();
     } catch (err) {
       alert(err.response?.data?.msg || "Failed to post answer");
     }
@@ -56,84 +95,89 @@ export default function QuestionDetail() {
         `http://localhost:5000/api/answers/${id}/${answerId}`,
         { headers: { Authorization: `Bearer ${user.token}` } }
       );
-      fetchData();
+      setQuestion(prev => ({
+        ...prev,
+        answers: prev.answers.filter(a => a._id !== answerId)
+      }));
     } catch (err) {
       alert(err.response?.data?.msg || "Failed to delete answer");
-    }
-  };
-
-  // Vote on answer
-  const handleVoteAnswer = async (answerId, vote) => {
-    if (!user?.token) return alert("Login to vote");
-    try {
-      await axios.patch(
-        `http://localhost:5000/api/answers/${id}/${answerId}/vote`,
-        { vote },
-        { headers: { Authorization: `Bearer ${user.token}` } }
-      );
-      fetchData();
-    } catch (err) {
-      alert(err.response?.data?.msg || "Failed to vote");
-    }
-  };
-
-  // Vote question
-  const handleVoteQuestion = async (vote) => {
-    if (!user?.token) return alert("Login to vote");
-    try {
-      await axios.patch(
-        `http://localhost:5000/api/questions/${id}/vote`,
-        { vote },
-        { headers: { Authorization: `Bearer ${user.token}` } }
-      );
-      fetchData();
-    } catch (err) {
-      alert(err.response?.data?.msg || "Failed to vote");
     }
   };
 
   if (loading) return <p>Loading...</p>;
   if (!question) return <p>No question found.</p>;
 
+  const questionVote = getUserVote(question.userVotes);
+
   return (
     <div className="qd-container">
-      <div className="qd-card">
-        <h2 className="qd-title">{question.title}</h2>
-        <div className="qd-body" dangerouslySetInnerHTML={{ __html: question.body }} />
+      <div className="qd-question-card">
+        <div className="qd-main-content">
+          <div className="qd-vote-panel">
+            <button
+              onClick={() => handleVoteQuestion(questionVote === 1 ? 0 : 1)}
+              className={`vote-btn upvote-btn ${questionVote === 1 ? "upvoted" : ""}`}
+            >
+              <span className="vote-count">{question.upvotes}</span> Upvote
+            </button>
+            <button
+              onClick={() => handleVoteQuestion(questionVote === -1 ? 0 : -1)}
+              className={`vote-btn downvote-btn ${questionVote === -1 ? "downvoted" : ""}`}
+            >
+              <span className="vote-count">{question.downvotes}</span> Downvote
+            </button>
+          </div>
 
-        <div className="question-votes">
-          <button onClick={() => handleVoteQuestion(1)}>👍 {question.upvotes || 0}</button>
-          <button onClick={() => handleVoteQuestion(-1)}>👎</button>
+          <div className="qd-content-area">
+            <h2 className="qd-title">{question.title}</h2>
+            <div className="qd-body" dangerouslySetInnerHTML={{ __html: question.body }} />
+          </div>
         </div>
-
-        <Comments parentId={question._id} parentType="Question" />
+        <Comments parentId={question._id} parentType="question" />
       </div>
 
+      {/* Answers */}
       <div className="qd-answers-section">
-        <h3>Answers</h3>
-        {question.answers?.length ? (
-          question.answers.map((a) => (
+        <h3>{question.answers?.length || 0} Answers</h3>
+        {question.answers?.map(a => {
+          const userVote = getUserVote(a.userVotes);
+          return (
             <div key={a._id} className="qd-answer-card">
-              <div dangerouslySetInnerHTML={{ __html: a.body }} />
-              <small>{a.author?.name || "Anonymous"}</small>
+              <div className="qd-main-content">
+                <div className="qd-vote-panel answer-vote-panel">
+                  <button
+                    onClick={() => handleVoteAnswer(a._id, userVote === 1 ? 0 : 1)}
+                    className={`vote-btn upvote-btn ${userVote === 1 ? 'upvoted' : ''}`}
+                  >
+                    <span className="vote-count">{a.upvotes}</span> Upvote
+                  </button>
+                  <button
+                    onClick={() => handleVoteAnswer(a._id, userVote === -1 ? 0 : -1)}
+                    className={`vote-btn downvote-btn ${userVote === -1 ? 'downvoted' : ''}`}
+                  >
+                    <span className="vote-count">{a.downvotes}</span> Downvote
+                  </button>
+                </div>
 
-              <div className="qd-answer-actions">
-                <button onClick={() => handleVoteAnswer(a._id, 1)}>👍 {a.votes || 0}</button>
-                <button onClick={() => handleVoteAnswer(a._id, -1)}>👎</button>
-
-                {user && a.author && user.id === a.author._id && (
-                  <button onClick={() => handleDeleteAnswer(a._id)}>Delete Answer</button>
-                )}
+                <div className="qd-content-area">
+                  <div className="qd-answer-body" dangerouslySetInnerHTML={{ __html: a.body }} />
+                  <div className="qd-answer-footer">
+                    <small>Answered by: {a.author?.name || "Anonymous"}</small>
+                    {user && a.author && user.id === a.author._id && (
+                      <button onClick={() => handleDeleteAnswer(a._id)} className="delete-btn">Delete</button>
+                    )}
+                  </div>
+                </div>
               </div>
-
-              <Comments parentId={a._id} parentType="Answer" />
+              <Comments parentId={a._id} parentType="answer" />
             </div>
-          ))
-        ) : (
-          <p>No answers yet.</p>
-        )}
+          );
+        })}
+      </div>
 
-        {user && (
+      {/* Add Answer */}
+      <div className="qd-add-answer-wrapper">
+        {user ? (
           <form onSubmit={handleAnswerSubmit} className="qd-add-answer-form">
             <textarea
               value={newAnswer}
@@ -141,11 +185,9 @@ export default function QuestionDetail() {
               placeholder="Write your answer..."
               required
             />
-            <button type="submit">Post Answer</button>
+            <button type="submit">Post Your Answer</button>
           </form>
-        )}
-
-        {!user && <p>Please log in to post an answer.</p>}
+        ) : <p>Please log in to post an answer.</p>}
       </div>
     </div>
   );

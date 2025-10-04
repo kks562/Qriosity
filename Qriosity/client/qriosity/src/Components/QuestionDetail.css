@@ -1,246 +1,384 @@
-/* ===== Container ===== */
+/* ========================================================================= */
+/* || CSS VARIABLES & GLOBAL STYLES */
+/* ========================================================================= */
+
+:root {
+    /* Colors */
+    --clr-primary: #0078FF;             /* Vibrant Blue for links/upvote fill */
+    --clr-primary-hover: #0056b3;
+    --clr-accent-downvote: #d9534f;    /* Red for downvote */
+    --clr-background: #f8f9fa;         /* Very light gray page background */
+    --clr-card-bg: #ffffff;            /* White content background */
+    --clr-border: #e6e6e6;             /* Light subtle border */
+    --clr-text: #232629;                /* Dark text */
+    --clr-text-secondary: #6a737c;      /* Muted text for meta info */
+    --clr-comment-bg: #f7f7f7;         /* Very light gray for comments (subtle shading) */
+    --clr-danger: #d9534f;              /* Red for delete actions */
+    --clr-focus-ring: rgba(0, 120, 255, 0.4);
+
+    /* Spacing */
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 32px;
+
+    /* Shadows & Borders */
+    --shadow-subtle: 0 1px 4px rgba(0, 0, 0, 0.05);
+    --border-radius-md: 6px;
+    --border-radius-lg: 10px;
+}
+
+/* Global Base Styles */
 .qd-container {
-  max-width: 900px;
-  margin: 40px auto;
-  padding: 0 20px;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: #1f2937;
-  box-sizing: border-box;
-  overflow-x: hidden;
+    max-width: 1100px;
+    margin: var(--space-xl) auto;
+    padding: var(--space-md);
+    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+    color: var(--clr-text);
+    background-color: var(--clr-background);
 }
 
-/* ===== Question & Answer Cards ===== */
-.qd-card,
+button {
+    cursor: pointer;
+    border: none;
+    border-radius: var(--border-radius-md);
+    padding: var(--space-sm) var(--space-md);
+    font-weight: 500;
+    transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s;
+    white-space: nowrap; 
+}
+
+/* Base text area and input styles */
+textarea, input[type="text"] {
+    width: 100%;
+    padding: var(--space-sm) var(--space-md);
+    border: 1px solid var(--clr-border);
+    border-radius: var(--border-radius-md);
+    box-sizing: border-box;
+    font-size: 1em;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+textarea:focus, input[type="text"]:focus {
+    outline: none;
+    border-color: var(--clr-primary);
+    box-shadow: 0 0 0 2px var(--clr-focus-ring);
+}
+
+
+/* ========================================================================= */
+/* || QUESTION & ANSWER CARD STRUCTURE (Delineation) */
+/* ========================================================================= */
+
+.qd-question-card {
+    /* PRIMARY FOCUS: Main Question */
+    background-color: var(--clr-card-bg);
+    border: 1px solid var(--clr-border);
+    border-top: 4px solid var(--clr-primary); 
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-subtle);
+    
+    margin-bottom: var(--space-lg); 
+    padding-top: var(--space-md); 
+}
+
+.qd-answers-section h3 {
+    font-size: 1.6em;
+    font-weight: 600;
+    
+    margin-bottom: var(--space-sm); 
+    padding-bottom: var(--space-xs); 
+    
+    border-bottom: 1px solid var(--clr-border);
+}
+
 .qd-answer-card {
-  background-color: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 25px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  display: flex;
-  flex-direction: column;
-  word-wrap: break-word;
+    /* Clearer Answer Separation */
+    background-color: var(--clr-card-bg); /* Use white background */
+    border: 1px solid var(--clr-border); /* Full border to define the box */
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow-subtle);
+    
+    margin-bottom: var(--space-md); /* Space between answer boxes */
+    padding: 0; /* Padding handled internally */
+}
+.qd-answers-section .qd-answer-card:last-of-type {
+    border-bottom: 1px solid var(--clr-border); /* Ensure last item has bottom border too */
 }
 
-/* ===== Question Title & Body ===== */
+
+/* --- Content Layout (Flex for Votes/Body) --- */
+
+.qd-main-content {
+    display: flex;
+    gap: var(--space-md);
+    
+    /* Internal padding for the vote/body content */
+    padding: var(--space-md) var(--space-lg); 
+    border-bottom: 1px solid var(--clr-border); /* Separator between body and comments */
+}
+/* Remove bottom border on the last element before comments section */
+.qd-answer-card .qd-main-content:last-child {
+    border-bottom: none;
+}
+
+
+.qd-content-area {
+    flex-grow: 1;
+    min-width: 0;
+}
+
 .qd-title {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #2563eb;
-  margin-bottom: 12px;
+    font-size: 1.8em;
+    font-weight: 600;
+    margin-top: 0;
+    
+    margin-bottom: var(--space-sm); 
+    
+    line-height: 1.3;
 }
 
-.qd-body,
-.qd-answer-body {
-  font-size: 1.05rem;
-  line-height: 1.6;
-  color: #374151;
-  word-wrap: break-word;
+.qd-body, .qd-answer-body {
+    line-height: 1.6;
+    
+    padding-right: var(--space-lg); 
+    
+    margin-bottom: var(--space-sm); 
 }
 
-/* ===== Answers Section ===== */
-.qd-answers-section {
-  margin-top: 30px;
+/* --- Footer and Delete Button --- */
+
+.qd-answer-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-md);
+    
+    margin-top: var(--space-sm); 
+    padding-top: var(--space-sm); 
+    
+    border-top: 1px dashed var(--clr-border);
 }
 
-.qd-answers-title {
-  font-size: 1.4rem;
-  font-weight: 600;
-  margin-bottom: 15px;
-  color: #111827;
+.answer-author-meta {
+    color: var(--clr-text-secondary);
+    font-size: 0.9em;
 }
 
-/* ===== Add Answer Form ===== */
-.qd-add-answer-form {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 15px;
+.delete-btn {
+    background-color: var(--clr-danger);
+    color: var(--clr-card-bg);
+    padding: var(--space-xs) var(--space-sm);
+    font-size: 0.8em;
+}
+.delete-btn:hover {
+    background-color: var(--clr-danger);
+    opacity: 0.9;
 }
 
-.qd-add-answer-form textarea {
-  width: 100%;
-  min-height: 100px;
-  padding: 12px;
-  border-radius: 8px;
-  border: 1px solid #d1d5db;
-  font-size: 1rem;
-  resize: vertical;
-  outline: none;
+
+/* ========================================================================= */
+/* || VOTE PANEL & INTERACTIVITY (No change needed) */
+/* ========================================================================= */
+
+.qd-vote-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-xs); 
+    flex-shrink: 0; 
+    width: 50px;
+    padding-top: var(--space-xs); 
 }
 
-.qd-add-answer-form textarea:focus {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+.vote-btn {
+    background-color: transparent;
+    border: 1px solid var(--clr-border);
+    padding: 8px 0; 
+    width: 100%;
+    transition: all 0.2s ease-out;
+    display: flex;
+    flex-direction: column; 
+    align-items: center;
+    justify-content: center;
 }
 
-.qd-add-answer-form button {
-  align-self: flex-end;
-  padding: 10px 20px;
-  background-color: #3b82f6;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
+.vote-count {
+    font-size: 1.1em;
+    font-weight: 700;
+    color: var(--clr-text);
+    line-height: 1;
 }
 
-.qd-add-answer-form button:hover {
-  background-color: #2563eb;
+/* SVG Icon Styling */
+.icon-thumb {
+    width: 24px;
+    height: 24px;
+    stroke: var(--clr-text-secondary); 
+    fill: none; 
+    transition: stroke 0.2s ease, fill 0.3s ease;
 }
 
-/* ===== Vote Buttons Outside Answer Box ===== */
-.qd-vote-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  font-size: 0.9rem;
-  margin-right: 10px;
+/* --- Hover States --- */
+.vote-btn:not([disabled]):hover {
+    border-color: var(--clr-primary);
+    background-color: #f0f8ff;
+}
+.vote-btn:not([disabled]):hover .icon-thumb {
+    stroke: var(--clr-primary);
+    transform: scale(1.05);
 }
 
-.qd-upvote-btn,
-.qd-downvote-btn {
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1rem;
-  border-radius: 4px;
-  border: 1px solid #d1d5db;
-  background-color: #f9fafb;
-  color: #6b7280;
-  cursor: pointer;
-  transition: all 0.2s ease;
+/* --- Disabled State (Locked out) --- */
+.vote-btn[disabled] {
+    cursor: not-allowed;
+    opacity: 0.5;
+    background-color: transparent;
 }
 
-.qd-upvote-btn:hover {
-  background-color: #e0f2fe;
-  border-color: #3b82f6;
-  color: #2563eb;
+
+/* --- VOTED (ACTIVE/FILLED) STATES --- */
+.vote-btn.upvoted {
+    border-color: var(--clr-primary); 
+    background-color: #f0f8ff; 
+}
+.vote-btn.upvoted .icon-thumb {
+    fill: var(--clr-primary);
+    stroke: var(--clr-primary);
 }
 
-.qd-downvote-btn:hover {
-  background-color: #fee2e2;
-  border-color: #ef4444;
-  color: #b91c1c;
+.vote-btn.downvoted {
+    border-color: var(--clr-danger);
+    background-color: #fff0f0; 
+}
+.vote-btn.downvoted .icon-thumb {
+    fill: var(--clr-danger);
+    stroke: var(--clr-danger);
 }
 
-.qd-vote-count {
-  font-weight: 600;
-  color: #111827;
-  min-width: 20px;
-  text-align: center;
-  font-size: 0.85rem;
-}
 
-/* ===== Answer Layout with Votes Outside ===== */
-.qd-answer-card {
-  display: flex;
-  gap: 10px; /* space between vote & content */
-}
+/* ========================================================================= */
+/* || COMMENTS SECTION (Nested Clarity) */
+/* ========================================================================= */
 
-.qd-answer-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-/* ===== Comments ===== */
 .comments-container {
-  margin-top: 15px;
-  padding-left: 10px;
-  border-left: 2px solid #e5e7eb;
+    background-color: var(--clr-comment-bg);
+    border-top: 1px solid var(--clr-border);
+    
+    padding: var(--space-sm) var(--space-lg);
 }
 
-.comment-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 5px;
-  font-size: 0.9rem;
+.comments-container h5 {
+    font-size: 1em;
+    font-weight: 600;
+    color: var(--clr-text-secondary);
+    
+    margin: 0 0 var(--space-xs) 0;
+    
+    padding-bottom: var(--space-xs);
+    border-bottom: 1px solid var(--clr-border);
 }
 
-.comment-body {
-  color: #374151;
+/* Styling for comments nested under answers (extra indentation) */
+.qd-answer-card .comments-container {
+    background-color: transparent; 
+    
+    /* ADDED BORDER to visually enforce nesting/indentation */
+    border-left: 2px solid var(--clr-border); 
+    padding-left: var(--space-lg); 
+}
+
+.comments-list {
+    list-style: none;
+    padding: 0;
+    margin-bottom: var(--space-sm); 
+}
+
+.comment-item {
+    border-bottom: 1px dotted #ccc;
+    padding: var(--space-xs) 0;
+    font-size: 0.9em;
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
 }
 
 .comment-author {
-  color: #6b7280;
+    font-weight: 700;
+    color: var(--clr-primary);
+    flex-shrink: 0;
 }
 
-.comment-delete {
-  background: transparent;
-  border: none;
-  color: #ef4444;
-  cursor: pointer;
-  font-size: 0.8rem;
+/* --- Comment Delete Button --- */
+.comment-delete-btn {
+    background-color: var(--clr-danger);
+    color: var(--clr-card-bg);
+    padding: 4px 8px;
+    font-size: 0.8em;
+    margin-left: auto; 
+    min-width: 50px; 
 }
 
-.comment-delete:hover {
-  text-decoration: underline;
+.comment-delete-btn:hover {
+    opacity: 0.8;
 }
 
-.comment-form {
-  display: flex;
-  gap: 5px;
-  margin-top: 5px;
+/* --- Answer Form --- */
+.qd-add-answer-wrapper {
+    padding: var(--space-md) var(--space-lg);
+    border-top: 1px solid var(--clr-border);
 }
 
-.comment-form input {
-  flex: 1;
-  padding: 5px 8px;
-  border-radius: 5px;
-  border: 1px solid #d1d5db;
-  outline: none;
-}
-
-.comment-form button {
-  padding: 5px 10px;
-  border-radius: 5px;
-  background-color: #3b82f6;
-  color: white;
-  font-weight: 500;
-  border: none;
-  cursor: pointer;
-}
-
-.comment-form button:hover {
-  background-color: #2563eb;
-}
-
-/* ===== Minimal Comment Icon ===== */
-.comment-icon-container {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 0.9rem;
-  color: #6b7280;
-  cursor: pointer;
-  margin-top: 5px;
-}
-
-.comment-icon-container:hover {
-  color: #2563eb;
-}
-
-.comment-icon-container svg {
-  width: 16px;
-  height: 16px;
-  fill: currentColor;
-}
-
-/* ===== Responsive ===== */
-@media (max-width: 600px) {
-  .qd-answer-card {
+.qd-add-answer-form {
+    display: flex;
     flex-direction: column;
-  }
-  .qd-vote-container {
-    flex-direction: row;
-    margin-bottom: 5px;
-  }
+    gap: var(--space-md);
+}
+
+.qd-add-answer-form button {
+    background-color: var(--clr-primary);
+    color: var(--clr-card-bg);
+    align-self: flex-end;
+}
+.qd-add-answer-form button:hover {
+    background-color: var(--clr-primary-hover);
+}
+
+
+/* ========================================================================= */
+/* || RESPONSIVENESS */
+/* ========================================================================= */
+
+@media (max-width: 768px) {
+    .qd-container {
+        padding: var(--space-sm);
+    }
+    
+    .qd-main-content {
+        flex-direction: column;
+        padding: 0 var(--space-md) var(--space-md) var(--space-md);
+    }
+
+    .qd-vote-panel {
+        flex-direction: row; /* Stack votes horizontally on mobile */
+        width: 100%;
+        justify-content: flex-start; /* Left-align votes */
+        border-bottom: 1px solid var(--clr-border);
+        padding-bottom: var(--space-md);
+        margin-bottom: var(--space-md);
+        gap: var(--space-lg);
+    }
+    
+    .qd-vote-panel .vote-btn {
+        width: 80px; 
+        padding: 6px 12px;
+    }
+
+    .comments-container {
+        padding: var(--space-md);
+    }
+    .qd-answer-card .comments-container {
+        padding-left: var(--space-md);
+    }
 }

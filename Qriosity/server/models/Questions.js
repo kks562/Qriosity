@@ -1,82 +1,38 @@
 const mongoose = require("mongoose");
+const answerSchema = require("./Answer");
 
-// =========================
-// Answer Schema (subdocument)
-// =========================
-const answerSchema = new mongoose.Schema(
-  {
-    body: { type: String, required: true, trim: true },
-    author: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-    votes: { type: Number, default: 0 },
-    comments: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Comment",
-      },
-    ],
-    createdAt: { type: Date, default: Date.now },
-  },
-  { _id: true }
-);
-
-// =========================
-// Question Schema (main)
-// =========================
 const questionSchema = new mongoose.Schema(
   {
-    title: { type: String, required: true, trim: true },
+    title: { type: String, required: true, trim: true, index: true },
     body: { type: String, required: true, trim: true },
-    author: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-    tags: { type: [String], default: [] },
-    answers: [answerSchema], // embedded answers
-    comments: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Comment",
-      },
-    ],
-    upvotes: { type: Number, default: 0 },
-    views: { type: Number, default: 0, min: 0 },
+    author: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    tags: [{ type: String, index: true }],
+    answers: [answerSchema],
+    upvoters: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    downvoters: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    views: { type: Number, default: 0 },
   },
   { timestamps: true }
 );
 
-// =========================
-// Text Index for Search
-// =========================
-questionSchema.index({ title: "text", body: "text", tags: "text" });
-
-// =========================
-// Middleware: Cascade delete
-// =========================
-questionSchema.pre("deleteOne", { document: true, query: false }, async function (next) {
-  try {
-    const Comment = mongoose.model("Comment");
-
-    // Delete question's comments
-    if (this.comments?.length) {
-      await Comment.deleteMany({ _id: { $in: this.comments } });
-    }
-
-    // Delete all comments in answers
-    for (const ans of this.answers) {
-      if (ans.comments?.length) {
-        await Comment.deleteMany({ _id: { $in: ans.comments } });
-      }
-    }
-
-    next();
-  } catch (err) {
-    next(err);
-  }
+// Virtuals
+questionSchema.virtual("upvotes").get(function () {
+  return this.upvoters?.length || 0;
 });
+
+questionSchema.virtual("downvotes").get(function () {
+  return this.downvoters?.length || 0;
+});
+
+questionSchema.virtual("score").get(function () {
+  return (this.upvoters?.length || 0) - (this.downvoters?.length || 0);
+});
+
+// Enable virtuals in output
+questionSchema.set("toObject", { virtuals: true });
+questionSchema.set("toJSON", { virtuals: true });
+
+// Text index for search (title + body + tags)
+questionSchema.index({ title: "text", body: "text", tags: "text" });
 
 module.exports = mongoose.model("Question", questionSchema);

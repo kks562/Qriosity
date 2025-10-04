@@ -1,45 +1,43 @@
-const express = require('express');
-const mongoose = require('mongoose');
+const express = require("express");
+const mongoose = require("mongoose");
 const router = express.Router();
-const Question = require('../models/Questions');
-const authMiddleware = require('../middleware/auth');
+const Question = require("../models/Questions");
+const auth = require("../middleware/auth");
 
-// ==============================
-// Robust Search questions (Live Suggestions)
-// ==============================
-router.get('/search', async (req, res) => {
+// Vote an answer
+router.patch("/:questionId/answer/:answerId/vote", auth, async (req, res) => {
+  const { questionId, answerId } = req.params;
+  const { vote } = req.body; // 1 or -1
+
+  if (![1, -1, 0].includes(vote)) return res.status(400).json({ msg: "Vote must be 1, -1, or 0" });
+  if (!mongoose.Types.ObjectId.isValid(questionId) || !mongoose.Types.ObjectId.isValid(answerId))
+    return res.status(400).json({ msg: "Invalid IDs" });
+
   try {
-    const { query = "", tags = "", sort = "date", limit = 10 } = req.query;
-    const filter = {};
+    const question = await Question.findById(questionId);
+    if (!question) return res.status(404).json({ msg: "Question not found" });
 
-    // Partial match for live search
-    if (query && query.trim()) {
-      filter.title = { $regex: query.trim(), $options: "i" }; // case-insensitive
+    const answer = question.answers.id(answerId);
+    if (!answer) return res.status(404).json({ msg: "Answer not found" });
+
+    if (!answer.userVotes) answer.userVotes = [];
+
+    const existingVote = answer.userVotes.find(v => v.user.toString() === req.user.id);
+    if (existingVote) {
+      if (vote === 0) {
+        answer.userVotes = answer.userVotes.filter(v => v.user.toString() !== req.user.id);
+      } else {
+        existingVote.vote = vote;
+      }
+    } else if (vote !== 0) {
+      answer.userVotes.push({ user: req.user.id, vote });
     }
 
-    // Tags filter
-    const tagsArray = Array.isArray(tags)
-      ? tags
-      : (tags || "").split(",").map((t) => t.trim()).filter(Boolean);
-
-    if (tagsArray.length > 0) {
-      filter.tags = { $in: tagsArray };
-    }
-
-    // Sort option
-    const sortOption =
-      sort === "popularity" ? { upvotes: -1, createdAt: -1 } : { createdAt: -1 };
-
-    const questions = await Question.find(filter)
-      .sort(sortOption)
-      .limit(parseInt(limit))
-      .populate("author", "name")
-      .populate({ path: "answers.author", select: "name" });
-
-    res.json(questions);
+    await question.save();
+    res.json({ totalVotes: answer.userVotes.reduce((a,b) => a + b.vote, 0), userVotes: answer.userVotes });
   } catch (err) {
-    console.error("Search error:", err);
-    res.status(500).json({ msg: "Server error", error: err.message });
+    console.error("Vote answer error:", err);
+    res.status(500).json({ msg: "Server error" });
   }
 });
 
@@ -48,24 +46,60 @@ router.get('/search', async (req, res) => {
 // ==============================
 router.get("/", async (req, res) => {
   try {
+    const page = Math.max(1, parseInt(req.query.page || "1"));
+    const limit = Math.min(50, parseInt(req.query.limit || "20"));
+    const skip = (page - 1) * limit;
+
     const questions = await Question.find()
       .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
       .populate("author", "name")
       .populate({ path: "answers.author", select: "name" });
+
     res.json(questions);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ msg: "Server error", error: err.message });
+    console.error(err);
+    res.status(500).json({ msg: "Server error" });
   }
 });
 
 // ==============================
-// Get a single question + increment views
+// Search / autosuggest
+// ==============================
+router.get("/search", async (req, res) => {
+  try {
+    const { title, tags, sort } = req.query;
+    const query = {};
+
+    if (title) query.$text = { $search: title };
+
+    if (tags) {
+      const tagArr = tags.split(",").map(t => t.trim());
+      query.tags = { $in: tagArr };
+    }
+
+    let sortOption = { createdAt: -1 };
+    if (sort === "votes") sortOption = { upvoters: -1, downvoters: 1 };
+
+    const questions = await Question.find(query)
+      .sort(sortOption)
+      .limit(50)
+      .populate("author", "name");
+
+    res.json(questions);
+  } catch (err) {
+    console.error("Search error:", err);
+    res.status(500).json({ msg: "Search failed" });
+  }
+});
+
+// ==============================
+// Get single question + increment views
 // ==============================
 router.get("/:id", async (req, res) => {
   const { id } = req.params;
-  if (!mongoose.Types.ObjectId.isValid(id))
-    return res.status(400).json({ msg: "Invalid Question ID" });
+  if (!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({ msg: "Invalid ID" });
 
   try {
     const question = await Question.findByIdAndUpdate(
@@ -77,83 +111,57 @@ router.get("/:id", async (req, res) => {
       .populate({ path: "answers.author", select: "name" });
 
     if (!question) return res.status(404).json({ msg: "Question not found" });
-
     res.json(question);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ msg: "Server error", error: err.message });
+    console.error(err);
+    res.status(500).json({ msg: "Server error" });
   }
 });
 
 // ==============================
-// Create a new question
+// Create question
 // ==============================
-router.post("/", authMiddleware, async (req, res) => {
-  const { title, body, tags } = req.body;
-  if (!title || !body) return res.status(400).json({ msg: "Title and body are required" });
-
+router.post("/", auth, async (req, res) => {
   try {
-    const newQuestion = new Question({
+    const { title, body, tags } = req.body;
+    if (!title || !body) return res.status(400).json({ msg: "Title and body required" });
+
+    const tagsArray = Array.isArray(tags)
+      ? tags
+      : (tags || "").split(",").map(t => t.trim()).filter(Boolean);
+
+    const q = new Question({
       title,
       body,
+      tags: tagsArray,
       author: req.user.id,
-      tags: Array.isArray(tags) ? tags : (tags || "").split(",").map(tag => tag.trim()),
     });
 
-    const question = await newQuestion.save();
-    const populated = await Question.findById(question._id).populate("author", "name");
+    const saved = await q.save();
+    const populated = await Question.findById(saved._id).populate("author", "name");
     res.status(201).json(populated);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ msg: "Server error", error: err.message });
+    console.error("Create question error:", err);
+    res.status(500).json({ msg: "Server error" });
   }
 });
 
 // ==============================
-// Add an answer to a question
+// Delete question
 // ==============================
-router.post("/:id/answer", authMiddleware, async (req, res) => {
-  const { body } = req.body;
+router.delete("/:id", auth, async (req, res) => {
   const { id } = req.params;
-
-  if (!body) return res.status(400).json({ msg: "Answer body is required" });
-  if (!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({ msg: "Invalid Question ID" });
+  if (!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({ msg: "Invalid ID" });
 
   try {
-    const question = await Question.findById(id);
-    if (!question) return res.status(404).json({ msg: "Question not found" });
+    const q = await Question.findById(id);
+    if (!q) return res.status(404).json({ msg: "Question not found" });
+    if (String(q.author) !== String(req.user.id)) return res.status(403).json({ msg: "Not authorized" });
 
-    const newAnswer = { body, author: req.user.id };
-    question.answers.push(newAnswer);
-    await question.save();
-
-    const savedAnswer = question.answers[question.answers.length - 1];
-    res.status(201).json({ ...savedAnswer.toObject(), questionId: id });
+    await q.deleteOne();
+    res.json({ msg: "Question deleted" });
   } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ msg: "Server error", error: err.message });
-  }
-});
-
-// ==============================
-// Delete a question
-// ==============================
-router.delete("/:id", authMiddleware, async (req, res) => {
-  const { id } = req.params;
-
-  if (!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({ msg: "Invalid Question ID" });
-
-  try {
-    const question = await Question.findById(id);
-    if (!question) return res.status(404).json({ msg: "Question not found" });
-
-    if (!question.author || question.author.toString() !== req.user.id)
-      return res.status(403).json({ msg: "Not authorized to delete this question" });
-
-    await question.deleteOne();
-    res.json({ msg: "Question deleted successfully" });
-  } catch (err) {
-    console.error("Error deleting question:", err);
+    console.error(err);
     res.status(500).json({ msg: "Server error" });
   }
 });
@@ -161,21 +169,30 @@ router.delete("/:id", authMiddleware, async (req, res) => {
 // ==============================
 // Vote a question
 // ==============================
-router.patch("/:id/vote", authMiddleware, async (req, res) => {
-  const { vote } = req.body; // 1 or -1
-  const { id } = req.params;
+router.patch("/:id/vote", auth, async (req, res) => {
+  const { vote } = req.body; // 1 = upvote, -1 = downvote, 0 = remove vote
+  if (![1, -1, 0].includes(vote)) return res.status(400).json({ msg: "Vote must be 1, -1, or 0" });
 
-  if (![1, -1].includes(vote)) return res.status(400).json({ msg: "Vote must be 1 or -1" });
+  const { id } = req.params;
   if (!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({ msg: "Invalid Question ID" });
 
   try {
     const question = await Question.findById(id);
     if (!question) return res.status(404).json({ msg: "Question not found" });
 
-    question.upvotes = (question.upvotes || 0) + vote;
-    await question.save();
+    const userId = req.user.id;
 
-    res.json(question);
+    // Remove previous vote
+    if (question.upvoters.includes(userId)) question.upvoters.pull(userId);
+    if (question.downvoters.includes(userId)) question.downvoters.pull(userId);
+
+    // Apply new vote if vote is 1 or -1
+    if (vote === 1) question.upvoters.push(userId);
+    else if (vote === -1) question.downvoters.push(userId);
+
+    await question.save();
+    const populated = await Question.findById(id).populate("author", "name");
+    res.json(populated);
   } catch (err) {
     console.error("Vote error:", err);
     res.status(500).json({ msg: "Server error" });

@@ -2,7 +2,7 @@ import { useEffect, useState, useContext } from "react";
 import { AuthContext } from "./AuthContext";
 import axios from "axios";
 import { Link } from "react-router-dom";
-import "./Questions.css"; // Ensure styling is applied
+import "./QuestionList.css"; // Ensure styling is applied
 
 export default function QuestionsList() {
   const { user } = useContext(AuthContext);

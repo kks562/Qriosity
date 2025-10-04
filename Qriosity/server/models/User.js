@@ -1,15 +1,14 @@
 // models/User.js
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-const userSchema = mongoose.Schema({
-  name: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  reputation: { type: Number, default: 1 },
-  bio: { type: String, default: '' },
-  profileImage: { type: String, default: 'https://placehold.co/150x150/E5E7EB/4B5563?text=User' },
-}, {
-  timestamps: true,
-});
+const userSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true, trim: true },
+    email: { type: String, required: true, unique: true, trim: true, lowercase: true },
+    password: { type: String, required: true },
+    // optionally add avatar, bio, etc.
+  },
+  { timestamps: true }
+);
 
-module.exports = mongoose.model('User', userSchema);
+module.exports = mongoose.model("User", userSchema);

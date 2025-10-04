@@ -1,0 +1,79 @@
+/* Container */
+.questions-container {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+  font-family: Arial, sans-serif;
+}
+
+.questions-container h2 {
+  font-size: 1.8rem;
+  color: #232629;
+  margin-bottom: 1rem;
+}
+
+/* Questions list */
+.questions-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.question-card {
+  background-color: #ffffff;
+  border: 1px solid #e1e4e8;
+  border-radius: 6px;
+  padding: 1rem 1.5rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  transition: box-shadow 0.2s;
+}
+
+.question-card:hover {
+  box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+}
+
+/* Question header (title + delete) */
+.question-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.question-title {
+  font-weight: bold;
+  font-size: 1.1rem;
+  color: #0074cc;
+  text-decoration: none;
+}
+
+.question-title:hover {
+  text-decoration: underline;
+}
+
+/* Delete button */
+.delete-btn {
+  background-color: #e60000;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background-color 0.2s;
+}
+
+.delete-btn:hover {
+  background-color: #c40000;
+}
+
+/* Question meta info */
+.question-meta {
+  font-size: 0.85rem;
+  color: #6a737c;
+}
+
+.question-meta span {
+  margin-right: 0.5rem;
+}

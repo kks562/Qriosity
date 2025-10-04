@@ -1,83 +1,487 @@
-/* ====================== */
-/* Search Form Styles     */
-/* ====================== */
+/* ========================================================================= */
+/* || CSS VARIABLES & GLOBAL STYLES (Stack Overflow Inspired) */
+/* ========================================================================= */
+
+:root {
+    /* Colors */
+    --clr-primary: #0078FF;             /* Vibrant Blue for links/accents */
+    --clr-primary-hover: #0056b3;
+    --clr-accent-green: #5cb85c;        /* Green for answers */
+    --clr-background: #f8f9fa;          /* Very light gray page background */
+    --clr-card-bg: #ffffff;             /* White card background */
+    --clr-border: #e6e6e6;              /* Light subtle border */
+    --clr-text: #232629;                /* Dark text */
+    --clr-text-secondary: #6a737c;      /* Muted gray for meta info */
+    --clr-danger: #d9534f;              /* Red for delete actions */
+
+    /* Spacing */
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --border-radius-md: 6px;
+
+    /* Shadows (Subtle Depth) */
+    --shadow-subtle: 0 1px 4px rgba(0, 0, 0, 0.05);
+    --shadow-hover: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+body {
+    margin: 0;
+    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+    background-color: var(--clr-background);
+    color: var(--clr-text);
+}
+
+/* Base interactive element reset */
+button, input, select, textarea {
+    font-family: inherit;
+}
+
+/* ========================================================================= */
+/* || CONTAINER & HEADER */
+/* ========================================================================= */
+
+.questions-container {
+    max-width: 1200px;
+    margin: var(--space-xl) auto;
+    padding: var(--space-md);
+}
+
+.questions-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-xl);
+    flex-wrap: wrap;
+    gap: var(--space-md);
+}
+
+.questions-header h2 {
+    font-size: 2.2em;
+    font-weight: 600;
+    margin: 0;
+    color: var(--clr-text);
+}
+
+.header-actions {
+    display: flex;
+    gap: var(--space-md);
+    align-items: center;
+    flex-wrap: wrap;
+    flex: 1 1 auto; 
+    min-width: 300px; 
+}
+
+/* --- Search Bar & Select --- */
+
 .wide-search-form {
-  display: flex;
-  margin: 15px 0;
-  position: relative; /* Needed for dropdown positioning */
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    max-width: 600px;
+    width: 100%;
+    flex-grow: 2;
+}
+
+.wide-search-form input,
+.search-mode-select {
+    padding: var(--space-sm) var(--space-md);
+    border: 1px solid var(--clr-border);
+    border-radius: var(--border-radius-md);
+    font-size: 1em;
+    transition: border-color 0.2s;
+    height: 40px; /* Uniform height */
 }
 
 .wide-search-form input {
-  flex: 1;
-  padding: 10px;
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 5px 0 0 5px;
+    flex-grow: 1;
+    margin-bottom: 0;
+}
+
+.search-mode-select {
+    background-color: var(--clr-card-bg);
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.wide-search-form input:focus,
+.search-mode-select:focus {
+    outline: none;
+    border-color: var(--clr-primary);
+    box-shadow: 0 0 0 2px rgba(0, 120, 255, 0.2);
 }
 
 .wide-search-form button {
-  padding: 10px 20px;
-  font-size: 1rem;
-  border: none;
-  background-color: #4f46e5;
-  color: white;
-  cursor: pointer;
-  border-radius: 0 5px 5px 0;
+    background-color: var(--clr-primary);
+    color: var(--clr-card-bg);
+    padding: 10px var(--space-md);
+    height: 40px;
+    flex-shrink: 0;
 }
-
 .wide-search-form button:hover {
-  background-color: #4338ca;
+    background-color: var(--clr-primary-hover);
 }
 
-/* ====================== */
-/* Suggestions Dropdown   */
-/* ====================== */
+/* --- Ask Button --- */
+.ask-btn {
+    background-color: var(--clr-primary);
+    color: var(--clr-card-bg);
+    text-decoration: none;
+    padding: 10px var(--space-md);
+    height: 40px;
+    line-height: 20px; /* Center text vertically */
+}
+.ask-btn:hover {
+    background-color: var(--clr-primary-hover);
+}
+
+
+/* ========================================================================= */
+/* || ADD QUESTION FORM */
+/* ========================================================================= */
+
+.add-question-form {
+    background-color: var(--clr-card-bg);
+    border: 1px solid var(--clr-border);
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow-subtle);
+    padding: var(--space-lg);
+    margin-bottom: var(--space-xl);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.add-question-form .submit-btn {
+    background-color: var(--clr-accent-green);
+    color: var(--clr-card-bg);
+    align-self: flex-end;
+}
+.add-question-form .submit-btn:hover {
+    background-color: var(--clr-accent-green-hover);
+}
+
+
+/* ========================================================================= */
+/* || QUESTIONS LIST & CARD */
+/* ========================================================================= */
+
+.questions-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    gap: var(--space-md);
+    display: flex;
+    flex-direction: column;
+}
+
+.question-card {
+    background-color: var(--clr-card-bg);
+    border: 1px solid var(--clr-border);
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow-subtle);
+    display: flex;
+    padding: var(--space-md);
+    
+    /* FIX: Align items to top for tight vertical space */
+    align-items: flex-start;
+    
+    /* Engagement animation */
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.question-card:hover {
+    box-shadow: var(--shadow-hover);
+}
+
+.card-left-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    
+    padding-right: var(--space-md);
+    border-right: 1px solid var(--clr-border);
+    margin-right: var(--space-md);
+    
+    flex-shrink: 0; 
+    width: 80px; 
+    
+    /* Control spacing between votes and answer bubble */
+    gap: var(--space-md);
+}
+
+.card-right-section {
+    flex-grow: 1; 
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    min-width: 0; /* Prevents overflow */
+}
+
+.question-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start; 
+    margin-bottom: var(--space-xs);
+    gap: var(--space-sm);
+}
+
+.question-title {
+    font-size: 1.2em;
+    font-weight: 500;
+    color: var(--clr-primary);
+    cursor: pointer;
+    text-decoration: none;
+    line-height: 1.4;
+    transition: color 0.2s;
+}
+
+.question-title:hover {
+    color: var(--clr-primary-hover);
+    text-decoration: underline;
+}
+
+.question-meta {
+    font-size: 0.85em;
+    color: var(--clr-text-secondary);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-md);
+    margin-top: var(--space-xs);
+    margin-bottom: var(--space-sm);
+}
+
+/* --- Tags --- */
+.question-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+}
+
+.tag-badge {
+    background-color: #e1ecf4;
+    color: #39739d;
+    padding: 4px 6px;
+    border-radius: var(--border-radius-sm);
+    font-size: 0.8em;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.tag-badge:hover {
+    background-color: #d1e5f0;
+}
+
+.delete-btn {
+    background-color: var(--clr-danger);
+    color: var(--clr-card-bg);
+    padding: var(--space-xs) var(--space-sm);
+    font-size: 0.8em;
+    flex-shrink: 0;
+}
+.delete-btn:hover {
+    background-color: var(--clr-danger-hover);
+}
+
+
+/* ========================================================================= */
+/* || VOTING PANELS (Interactive Logic) */
+/* ========================================================================= */
+
+.question-votes {
+    display: flex;
+    flex-direction: column; 
+    align-items: center;
+    gap: 1px; /* Minimal gap between buttons */
+}
+
+.vote-btn {
+    background-color: transparent;
+    border: 1px solid transparent; /* Start with transparent border */
+    padding: 6px 0;
+    width: 100%;
+    
+    display: flex;
+    flex-direction: column; 
+    align-items: center;
+    justify-content: center;
+    
+    transition: all 0.2s ease-out;
+}
+
+.vote-count {
+    font-size: 1.1em;
+    font-weight: 700;
+    color: var(--clr-text);
+    line-height: 1;
+}
+
+/* SVG Icon Styling */
+.icon-thumb {
+    width: 24px; /* Increased size for better target */
+    height: 24px;
+    stroke: var(--clr-text-secondary); 
+    fill: none; 
+    transition: stroke 0.2s ease, fill 0.3s ease, transform 0.1s ease;
+}
+
+/* --- Hover States (Hinting engagement) --- */
+.vote-btn:not([disabled]):hover {
+    border-color: var(--clr-border);
+    background-color: #f0f0f0;
+}
+
+.vote-btn:not([disabled]):hover .icon-thumb {
+    stroke: var(--clr-primary);
+    transform: scale(1.05);
+}
+
+/* --- Disabled State (User has already voted the opposite) --- */
+.vote-btn[disabled] {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+
+/* --- VOTED (ACTIVE/FILLED) STATES --- */
+.vote-btn.upvoted {
+    border-color: var(--clr-primary);
+    background-color: #f0f8ff; /* Very light blue background */
+}
+.vote-btn.upvoted .icon-thumb {
+    fill: var(--clr-primary);
+    stroke: var(--clr-primary);
+}
+
+.vote-btn.downvoted {
+    border-color: var(--clr-danger);
+    background-color: #fff0f0; /* Very light red background */
+}
+.vote-btn.downvoted .icon-thumb {
+    fill: var(--clr-danger);
+    stroke: var(--clr-danger);
+}
+
+
+/* --- Answer Count Bubble --- */
+
+.answer-count-bubble {
+    background-color: var(--clr-accent-green);
+    color: var(--clr-card-bg);
+    font-size: 0.9em;
+    font-weight: 600;
+    padding: 4px 8px; /* Tighter padding */
+    border-radius: var(--border-radius-md);
+    margin-top: var(--space-sm);
+    text-align: center;
+    min-width: 60px; 
+    box-shadow: var(--shadow-subtle);
+    transition: background-color 0.2s ease;
+}
+.answer-count-bubble:hover {
+    background-color: var(--clr-accent-green-hover);
+}
+
+
+/* ========================================================================= */
+/* || Suggestions Dropdown Positioning Fix */
+/* ========================================================================= */
+
 .suggestions-dropdown {
-  position: absolute;
-  top: 100%; /* Below input */
-  left: 0;
-  width: 100%;
-  max-height: 250px; /* Scroll if too many */
-  overflow-y: auto;
-  background: #fff;
-  border: 1px solid #ccc;
-  border-top: none;
-  z-index: 1000;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  list-style: none;
-  margin: 0;
-  padding: 0;
+    position: absolute;
+    /* FIX: Top needs to account for the height of the search input and select */
+    top: 40px; 
+    
+    /* FIX: Force full width starting from the beginning of the search form */
+    left: 0; 
+    right: 0;
+    
+    background-color: var(--clr-card-bg);
+    border: 1px solid var(--clr-border);
+    border-top: none;
+    border-radius: 0 0 var(--border-radius-md) var(--border-radius-md);
+    box-shadow: var(--shadow-hover);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    z-index: 10; 
+    max-height: 200px;
+    overflow-y: auto;
 }
 
-.suggestion-item {
-  padding: 10px;
-  cursor: pointer;
-  transition: background 0.2s;
+.suggestions-dropdown li {
+    padding: var(--space-sm) var(--space-md);
+    cursor: pointer;
+    border-bottom: 1px solid var(--clr-border);
+    transition: background-color 0.2s ease;
 }
 
-.suggestion-item:hover {
-  background-color: #f0f0f0;
+.suggestions-dropdown li:last-child {
+    border-bottom: none;
 }
 
-.search-suggestions {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  background-color: white;
-  border: 1px solid #ccc;
-  border-top: none;
-  max-height: 250px;
-  overflow-y: auto;
-  z-index: 1000;
-  border-radius: 0 0 5px 5px;
+.suggestions-dropdown li:hover {
+    background-color: var(--clr-background);
 }
 
-.suggestion-item {
-  padding: 10px;
-  cursor: pointer;
-}
 
-.suggestion-item:hover {
-  background-color: #f0f0f0;
+/* ========================================================================= */
+/* || RESPONSIVENESS */
+/* ========================================================================= */
+
+@media (max-width: 768px) {
+    .questions-container {
+        padding: var(--space-sm);
+    }
+
+    .questions-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-md);
+    }
+    
+    .header-actions {
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+        gap: var(--space-sm);
+    }
+
+    .wide-search-form {
+        max-width: 100%;
+        width: 100%;
+    }
+
+    .question-card {
+        flex-direction: column; 
+        padding: var(--space-md);
+    }
+
+    .card-left-section {
+        width: 100%; 
+        padding-right: 0;
+        border-right: none;
+        border-bottom: 1px solid var(--clr-border); 
+        padding-bottom: var(--space-md);
+        margin-bottom: var(--space-md);
+        
+        /* Layout votes and answer count horizontally */
+        flex-direction: row; 
+        justify-content: space-between;
+    }
+    
+    .question-votes {
+        flex-direction: row; /* Thumbs side-by-side */
+        gap: var(--space-md);
+    }
+
+    .delete-btn {
+        margin-left: var(--space-md);
+    }
+
+    .suggestions-dropdown {
+        /* On mobile, if the header action stack, ensure dropdown is positioned correctly */
+        top: 80px; /* Adjust based on stacked elements */
+    }
 }

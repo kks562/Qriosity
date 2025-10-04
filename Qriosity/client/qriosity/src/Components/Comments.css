@@ -1,81 +1,78 @@
-.comments-wrapper {
-  margin-top: 10px;
-}
-
-/* Minimal Comment Icon outside box */
-.comment-icon-container {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 0.9rem;
-  color: #6b7280;
-  cursor: pointer;
-  margin-bottom: 5px;
-}
-
-.comment-icon-container:hover {
-  color: #2563eb;
-}
-
 .comments-container {
-  margin-top: 5px;
-  padding-left: 10px;
-  border-left: 2px solid #e5e7eb;
+  margin-top: 0.75rem;
+  padding-left: 1rem;
+  border-left: 2px solid #e1e4e8;
+  font-size: 0.9rem;
+  color: #3b4045;
 }
 
-.comment-card {
+.comments-container h4 {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+  color: #232629;
+}
+
+.comments-container ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.comments-container li {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 5px;
+  padding: 0.25rem 0;
+  border-bottom: 1px solid #e1e4e8;
+}
+
+.comments-container li:last-child {
+  border-bottom: none;
+}
+
+.comments-container strong {
+  margin-right: 0.25rem;
+  color: #0074cc;
+}
+
+.comments-container button {
+  background-color: transparent;
+  border: none;
+  color: #e60000;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: color 0.2s;
+}
+
+.comments-container button:hover {
+  color: #c40000;
+}
+
+.comments-container form {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.comments-container input[type="text"] {
+  flex: 1;
+  padding: 0.4rem 0.5rem;
+  border-radius: 3px;
+  border: 1px solid #ccc;
   font-size: 0.9rem;
 }
 
-.comment-body {
-  color: #374151;
-}
-
-.comment-author {
-  color: #6b7280;
-}
-
-.comment-delete {
-  background: transparent;
-  border: none;
-  color: #ef4444;
-  cursor: pointer;
-  font-size: 0.8rem;
-}
-
-.comment-delete:hover {
-  text-decoration: underline;
-}
-
-.comment-form {
-  display: flex;
-  gap: 5px;
-  margin-top: 5px;
-}
-
-.comment-form input {
-  flex: 1;
-  padding: 5px 8px;
-  border-radius: 5px;
-  border: 1px solid #d1d5db;
-  outline: none;
-}
-
-.comment-form button {
-  padding: 5px 10px;
-  border-radius: 5px;
-  background-color: #3b82f6;
+.comments-container button[type="submit"] {
+  padding: 0.4rem 0.8rem;
+  background-color: #0a95ff;
   color: white;
-  font-weight: 500;
   border: none;
+  border-radius: 3px;
+  font-weight: bold;
   cursor: pointer;
+  transition: background-color 0.2s;
 }
 
-.comment-form button:hover {
-  background-color: #2563eb;
+.comments-container button[type="submit"]:hover {
+  background-color: #0074cc;
 }

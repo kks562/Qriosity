@@ -1,43 +1,77 @@
 const express = require("express");
-const router = express.Router();
 const mongoose = require("mongoose");
+const router = express.Router();
 const Question = require("../models/Questions");
-const authMiddleware = require("../middleware/auth");
+const auth = require("../middleware/auth");
 
-// Add an answer to a question
-router.post("/:questionId", authMiddleware, async (req, res) => {
-  const { body } = req.body;
+// Add answer
+router.post("/:questionId", auth, async (req, res) => {
   const { questionId } = req.params;
+  const { body } = req.body;
 
-  if (!body) return res.status(400).json({ msg: "Answer body is required" });
+  if (!body) return res.status(400).json({ msg: "Answer body required" });
   if (!mongoose.Types.ObjectId.isValid(questionId))
-    return res.status(400).json({ msg: "Invalid Question ID" });
+    return res.status(400).json({ msg: "Invalid questionId" });
 
   try {
     const question = await Question.findById(questionId);
     if (!question) return res.status(404).json({ msg: "Question not found" });
 
-    const newAnswer = { body, author: req.user.id };
-    question.answers.push(newAnswer);
+    const answer = {
+      _id: new mongoose.Types.ObjectId(),
+      body,
+      author: req.user.id,
+      createdAt: new Date(),
+      upvoters: [],
+      downvoters: [],
+    };
+
+    question.answers.push(answer);
     await question.save();
 
-    const savedAnswer = question.answers[question.answers.length - 1];
-    await savedAnswer.populate("author", "name");
+    const created = question.answers[question.answers.length - 1];
+    await Question.populate(created, { path: "author", select: "name" });
 
-    res.status(201).json({ ...savedAnswer.toObject(), questionId });
+    res.status(201).json(created);
   } catch (err) {
-    console.error(err);
+    console.error("Add answer error:", err);
     res.status(500).json({ msg: "Server error" });
   }
 });
 
-// Delete an answer (subdocument)
-router.delete("/:questionId/:answerId", authMiddleware, async (req, res) => {
+// Delete answer
+router.delete("/:questionId/:answerId", auth, async (req, res) => {
   const { questionId, answerId } = req.params;
 
-  if (!mongoose.Types.ObjectId.isValid(questionId) || !mongoose.Types.ObjectId.isValid(answerId)) {
+  if (!mongoose.Types.ObjectId.isValid(questionId) || !mongoose.Types.ObjectId.isValid(answerId))
     return res.status(400).json({ msg: "Invalid ID(s)" });
+
+  try {
+    const question = await Question.findById(questionId);
+    if (!question) return res.status(404).json({ msg: "Question not found" });
+
+    const answer = question.answers.id(answerId);
+    if (!answer) return res.status(404).json({ msg: "Answer not found" });
+    if (String(answer.author) !== req.user.id) return res.status(403).json({ msg: "Not authorized" });
+
+    question.answers.pull(answerId);
+    await question.save();
+
+    res.json({ msg: "Answer deleted successfully" });
+  } catch (err) {
+    console.error("Delete answer error:", err);
+    res.status(500).json({ msg: "Server error" });
   }
+});
+
+// Vote answer
+router.patch("/:questionId/:answerId/vote", auth, async (req, res) => {
+  const { questionId, answerId } = req.params;
+  const { vote } = req.body; // 1 or -1
+
+  if (![1, -1].includes(vote)) return res.status(400).json({ msg: "Vote must be 1 or -1" });
+  if (!mongoose.Types.ObjectId.isValid(questionId) || !mongoose.Types.ObjectId.isValid(answerId))
+    return res.status(400).json({ msg: "Invalid ID(s)" });
 
   try {
     const question = await Question.findById(questionId);
@@ -46,76 +80,25 @@ router.delete("/:questionId/:answerId", authMiddleware, async (req, res) => {
     const answer = question.answers.id(answerId);
     if (!answer) return res.status(404).json({ msg: "Answer not found" });
 
-    if (answer.author.toString() !== req.user.id) {
-      return res.status(403).json({ msg: "Not authorized to delete this answer" });
-    }
+    // Remove existing vote if toggling
+    answer.upvoters = answer.upvoters.filter(u => u.toString() !== req.user.id);
+    answer.downvoters = answer.downvoters.filter(u => u.toString() !== req.user.id);
 
-    // Correct way: remove subdocument
-    question.answers.pull(answerId);
+    if (vote === 1) answer.upvoters.push(req.user.id);
+    if (vote === -1) answer.downvoters.push(req.user.id);
+
     await question.save();
 
-    res.json({ msg: "Answer deleted successfully" });
+    res.json({
+      ...answer.toObject(),
+      upvotes: answer.upvoters.length,
+      downvotes: answer.downvoters.length,
+      votes: answer.upvoters.length - answer.downvoters.length,
+    });
   } catch (err) {
-    console.error(err);
+    console.error("Answer vote error:", err);
     res.status(500).json({ msg: "Server error" });
   }
 });
-
-router.patch('/:questionId/:answerId/vote', authMiddleware, async (req, res) => {
-  const { questionId, answerId } = req.params;
-  const { vote } = req.body; // +1 or -1
-
-  if (!mongoose.Types.ObjectId.isValid(questionId) || !mongoose.Types.ObjectId.isValid(answerId)) {
-    return res.status(400).json({ msg: 'Invalid ID' });
-  }
-
-  try {
-    const question = await Question.findById(questionId);
-    if (!question) return res.status(404).json({ msg: 'Question not found' });
-
-    const answer = question.answers.id(answerId);
-    if (!answer) return res.status(404).json({ msg: 'Answer not found' });
-
-    // Update votes
-    answer.votes = (answer.votes || 0) + (vote === 1 ? 1 : vote === -1 ? -1 : 0);
-
-    await question.save();
-    res.json({ msg: 'Vote updated', votes: answer.votes });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ msg: 'Server error' });
-  }
-});
-
-// Vote an answer
-router.delete("/:id", authMiddleware, async (req, res) => {
-  const { id } = req.params;
-
-  // ✅ Validate ID
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(400).json({ msg: "Invalid Question ID" });
-  }
-
-  try {
-    const question = await Question.findById(id);
-    if (!question) {
-      return res.status(404).json({ msg: "Question not found" });
-    }
-
-    // ✅ Ensure author exists and matches logged-in user
-    if (!question.author || String(question.author) !== req.user.id) {
-      return res.status(403).json({ msg: "Not authorized to delete this question" });
-    }
-
-    // ✅ Delete question
-    await question.deleteOne();
-
-    res.json({ msg: "Question deleted successfully" });
-  } catch (err) {
-    console.error("Error deleting question:", err);
-    res.status(500).json({ msg: "Server error" });
-  }
-});
-
 
 module.exports = router;
