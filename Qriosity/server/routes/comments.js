@@ -5,13 +5,15 @@ const Comment = require("../models/Comment");
 const Question = require("../models/Questions");
 const auth = require("../middleware/auth");
 
-// Vote comment
+// Backend Comments Route (router.patch("/:commentId/vote", ...))
+
 router.patch("/:commentId/vote", auth, async (req, res) => {
   const { commentId } = req.params;
-  const { vote } = req.body;
+  const { vote } = req.body; // 1, -1, or 0 (now fully supported)
 
-  if (![1, -1].includes(vote))
-    return res.status(400).json({ msg: "Vote must be 1 or -1" });
+  // 🚀 CRITICAL FIX: Allow 0 for unvoting in validation
+  if (![1, -1, 0].includes(vote))
+    return res.status(400).json({ msg: "Vote must be 1, -1, or 0" });
 
   if (!mongoose.Types.ObjectId.isValid(commentId))
     return res.status(400).json({ msg: "Invalid commentId" });
@@ -20,25 +22,27 @@ router.patch("/:commentId/vote", auth, async (req, res) => {
     const comment = await Comment.findById(commentId);
     if (!comment) return res.status(404).json({ msg: "Comment not found" });
 
-    // Ensure userVotes exists
     comment.userVotes = comment.userVotes || [];
 
-    // Check if user has already voted
+    // Find existing vote
     const existingVoteIndex = comment.userVotes.findIndex(
       u => u.user.toString() === req.user.id
     );
 
+    // 1. If an existing vote is found
     if (existingVoteIndex > -1) {
-      // User has voted before
-      if (comment.userVotes[existingVoteIndex].vote === vote) {
-        // Same vote → remove (toggle off)
-        comment.userVotes.splice(existingVoteIndex, 1);
+      const existingVoteValue = comment.userVotes[existingVoteIndex].vote;
+      
+      // If new vote is the same OR is 0 (unvote intent from frontend): remove it
+      if (existingVoteValue === vote || vote === 0) {
+        comment.userVotes.splice(existingVoteIndex, 1); // Remove vote (unvote)
       } else {
-        // Different vote → update
+        // Different vote (1 vs -1): update the vote value
         comment.userVotes[existingVoteIndex].vote = vote;
       }
-    } else {
-      // First-time vote
+    } 
+    // 2. If no existing vote, and vote is not 0, push the new vote
+    else if (vote !== 0) {
       comment.userVotes.push({ user: req.user.id, vote });
     }
 
@@ -46,11 +50,8 @@ router.patch("/:commentId/vote", auth, async (req, res) => {
 
     const populated = await comment.populate("author", "name");
 
-    // Optional: return vote counts
-    const upvotes = comment.userVotes.filter(v => v.vote === 1).length;
-    const downvotes = comment.userVotes.filter(v => v.vote === -1).length;
-
-    res.json({ ...populated.toObject(), upvotes, downvotes });
+    // Return the updated populated comment object
+    res.json(populated.toObject());
   } catch (err) {
     console.error("Comment vote error:", err);
     res.status(500).json({ msg: "Server error" });

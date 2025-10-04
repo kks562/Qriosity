@@ -4,21 +4,24 @@
 
 :root {
     /* Colors */
-    --clr-primary: #0078FF;             /* Vibrant Blue for links/accents */
+    --clr-primary: #0078FF;                  /* Vibrant Blue for links/accents */
     --clr-primary-hover: #0056b3;
-    --clr-accent-green: #5cb85c;        /* Green for answers */
-    --clr-background: #f8f9fa;          /* Very light gray page background */
-    --clr-card-bg: #ffffff;             /* White card background */
-    --clr-border: #e6e6e6;              /* Light subtle border */
-    --clr-text: #232629;                /* Dark text */
-    --clr-text-secondary: #6a737c;      /* Muted gray for meta info */
-    --clr-danger: #d9534f;              /* Red for delete actions */
+    --clr-accent-green: #5cb85c;            /* Green for answers */
+    --clr-accent-green-hover: #4cae4c;      /* FIX: Added hover state for green */
+    --clr-background: #f8f9fa;               /* Very light gray page background */
+    --clr-card-bg: #ffffff;                 /* White card background */
+    --clr-border: #e6e6e6;                  /* Light subtle border */
+    --clr-text: #232629;                     /* Dark text */
+    --clr-text-secondary: #6a737c;           /* Muted gray for meta info */
+    --clr-danger: #d9534f;                  /* Red for delete actions */
+    --clr-danger-hover: #c9302c;            /* FIX: Added hover state for danger */
 
     /* Spacing */
     --space-xs: 4px;
     --space-sm: 8px;
     --space-md: 16px;
     --space-lg: 24px;
+    --space-xl: 32px;
     --border-radius-md: 6px;
 
     /* Shadows (Subtle Depth) */
@@ -36,14 +39,17 @@ body {
 /* Base interactive element reset */
 button, input, select, textarea {
     font-family: inherit;
+    border-radius: var(--border-radius-md);
+    border: none;
 }
 
 /* ========================================================================= */
-/* || CONTAINER & HEADER */
+/* || CONTAINER & HEADER (List View) */
 /* ========================================================================= */
 
 .questions-container {
     max-width: 1200px;
+    /* FIX: Centering the container */
     margin: var(--space-xl) auto;
     padding: var(--space-md);
 }
@@ -58,10 +64,12 @@ button, input, select, textarea {
 }
 
 .questions-header h2 {
-    font-size: 2.2em;
+    /* --- SUGGESTION FIX: Hide "All Questions" header --- */
+    display: none;
+    /* font-size: 2.2em;
     font-weight: 600;
     margin: 0;
-    color: var(--clr-text);
+    color: var(--clr-text); */
 }
 
 .header-actions {
@@ -69,30 +77,37 @@ button, input, select, textarea {
     gap: var(--space-md);
     align-items: center;
     flex-wrap: wrap;
-    flex: 1 1 auto; 
-    min-width: 300px; 
+    /* --- SUGGESTION FIX: Allow actions container to take up more width (e.g., 90%) --- */
+    flex: 1 1 90%; 
+    max-width: 100%;
 }
+
+/* --- Search Bar & Select --- */
+
+/* --- Search Bar & Select --- */
 
 /* --- Search Bar & Select --- */
 
 .wide-search-form {
     position: relative;
     display: flex;
-    align-items: center;
+    align-items: center; /* CRITICAL: Vertically align all items */
     gap: var(--space-sm);
-    max-width: 600px;
+    max-width:1072px; 
     width: 100%;
     flex-grow: 2;
 }
 
 .wide-search-form input,
 .search-mode-select {
-    padding: var(--space-sm) var(--space-md);
+    /* Set padding to match button height (40px) */
+    padding: 9.5px var(--space-md); 
     border: 1px solid var(--clr-border);
     border-radius: var(--border-radius-md);
     font-size: 1em;
     transition: border-color 0.2s;
-    height: 40px; /* Uniform height */
+    /* Removed height: 40px here, relying on padding/font-size for natural height */
+    box-sizing: border-box; /* CRITICAL: Ensures padding is included in total width/height */
 }
 
 .wide-search-form input {
@@ -104,6 +119,8 @@ button, input, select, textarea {
     background-color: var(--clr-card-bg);
     cursor: pointer;
     flex-shrink: 0;
+    /* Ensure height matches buttons perfectly */
+    height: 40px; 
 }
 
 .wide-search-form input:focus,
@@ -184,10 +201,10 @@ button, input, select, textarea {
     box-shadow: var(--shadow-subtle);
     display: flex;
     padding: var(--space-md);
-    
+
     /* FIX: Align items to top for tight vertical space */
     align-items: flex-start;
-    
+
     /* Engagement animation */
     transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
@@ -200,20 +217,20 @@ button, input, select, textarea {
     display: flex;
     flex-direction: column;
     align-items: center;
-    
+
     padding-right: var(--space-md);
     border-right: 1px solid var(--clr-border);
     margin-right: var(--space-md);
-    
-    flex-shrink: 0; 
-    width: 80px; 
-    
+
+    flex-shrink: 0;
+    width: 80px;
+
     /* Control spacing between votes and answer bubble */
     gap: var(--space-md);
 }
 
 .card-right-section {
-    flex-grow: 1; 
+    flex-grow: 1;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -223,7 +240,7 @@ button, input, select, textarea {
 .question-header {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start; 
+    align-items: flex-start;
     margin-bottom: var(--space-xs);
     gap: var(--space-sm);
 }
@@ -264,7 +281,7 @@ button, input, select, textarea {
     background-color: #e1ecf4;
     color: #39739d;
     padding: 4px 6px;
-    border-radius: var(--border-radius-sm);
+    border-radius: var(--border-radius-md);
     font-size: 0.8em;
     cursor: pointer;
     transition: background-color 0.2s;
@@ -286,27 +303,27 @@ button, input, select, textarea {
 
 
 /* ========================================================================= */
-/* || VOTING PANELS (Interactive Logic) */
+/* || VOTING PANELS (General) */
 /* ========================================================================= */
 
 .question-votes {
     display: flex;
-    flex-direction: column; 
+    flex-direction: column;
     align-items: center;
     gap: 1px; /* Minimal gap between buttons */
 }
 
 .vote-btn {
     background-color: transparent;
-    border: 1px solid transparent; /* Start with transparent border */
+    border: 1px solid transparent;
     padding: 6px 0;
     width: 100%;
-    
+
     display: flex;
-    flex-direction: column; 
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    
+
     transition: all 0.2s ease-out;
 }
 
@@ -319,14 +336,14 @@ button, input, select, textarea {
 
 /* SVG Icon Styling */
 .icon-thumb {
-    width: 24px; /* Increased size for better target */
+    width: 24px;
     height: 24px;
-    stroke: var(--clr-text-secondary); 
-    fill: none; 
+    stroke: var(--clr-text-secondary);
+    fill: none;
     transition: stroke 0.2s ease, fill 0.3s ease, transform 0.1s ease;
 }
 
-/* --- Hover States (Hinting engagement) --- */
+/* --- Hover States --- */
 .vote-btn:not([disabled]):hover {
     border-color: var(--clr-border);
     background-color: #f0f0f0;
@@ -337,7 +354,7 @@ button, input, select, textarea {
     transform: scale(1.05);
 }
 
-/* --- Disabled State (User has already voted the opposite) --- */
+/* --- Disabled State --- */
 .vote-btn[disabled] {
     cursor: not-allowed;
     opacity: 0.5;
@@ -347,7 +364,7 @@ button, input, select, textarea {
 /* --- VOTED (ACTIVE/FILLED) STATES --- */
 .vote-btn.upvoted {
     border-color: var(--clr-primary);
-    background-color: #f0f8ff; /* Very light blue background */
+    background-color: #f1fff0;
 }
 .vote-btn.upvoted .icon-thumb {
     fill: var(--clr-primary);
@@ -356,7 +373,7 @@ button, input, select, textarea {
 
 .vote-btn.downvoted {
     border-color: var(--clr-danger);
-    background-color: #fff0f0; /* Very light red background */
+    background-color: #fff0f0;
 }
 .vote-btn.downvoted .icon-thumb {
     fill: var(--clr-danger);
@@ -371,11 +388,11 @@ button, input, select, textarea {
     color: var(--clr-card-bg);
     font-size: 0.9em;
     font-weight: 600;
-    padding: 4px 8px; /* Tighter padding */
+    padding: 4px 8px;
     border-radius: var(--border-radius-md);
     margin-top: var(--space-sm);
     text-align: center;
-    min-width: 60px; 
+    min-width: 60px;
     box-shadow: var(--shadow-subtle);
     transition: background-color 0.2s ease;
 }
@@ -385,16 +402,303 @@ button, input, select, textarea {
 
 
 /* ========================================================================= */
+/* || QUESTION DETAIL PAGE STYLES */
+/* ========================================================================= */
+
+.qd-container {
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 0 var(--space-md);
+    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: var(--clr-text);
+}
+
+/* Question and Answer Card Styles */
+.qd-question-card,
+.qd-answer-card {
+    background: var(--clr-card-bg);
+    border: 1px solid var(--clr-border);
+    border-radius: var(--border-radius-md);
+    margin-bottom: var(--space-lg);
+    padding: var(--space-md);
+    box-shadow: var(--shadow-subtle);
+    transition: box-shadow 0.3s ease-in-out;
+}
+
+.qd-question-card:hover,
+.qd-answer-card:hover {
+    box-shadow: var(--shadow-hover);
+}
+
+.qd-main-content {
+    display: flex;
+    gap: var(--space-lg);
+}
+
+/* Answer specific structure */
+.qd-answer-main-row {
+    display: flex;
+    gap: var(--space-md);
+    width: 100%;
+}
+
+.qd-content-area {
+    flex-grow: 1;
+    min-width: 0;
+}
+
+.qd-title {
+    color: var(--clr-primary-hover);
+    font-size: 2em;
+    font-weight: 700;
+    margin-top: 0;
+    margin-bottom: var(--space-md);
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--clr-border);
+}
+
+.qd-body,
+.qd-answer-body {
+    line-height: 1.6;
+    font-size: 1.1em;
+    color: var(--clr-text);
+}
+
+/* Sleek Vertical Vote Panel for Answers (Smaller) */
+.answer-vote-panel-small {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    width: 50px;
+    flex-shrink: 0;
+    margin-top: var(--space-sm);
+}
+
+/* Answer Footer */
+.qd-answer-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--clr-border);
+    padding-top: var(--space-sm);
+    margin-top: var(--space-md);
+    font-size: 0.9em;
+    color: var(--clr-text-secondary);
+}
+
+/* Answer Delete Button (Consistent with List View Delete) */
+.delete-btn {
+    background-color: var(--clr-danger);
+    color: var(--clr-card-bg);
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--border-radius-md);
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.3s, transform 0.1s, box-shadow 0.3s;
+}
+
+.delete-btn:hover {
+    background-color: var(--clr-danger-hover);
+    box-shadow: 0 4px 6px rgba(217, 83, 79, 0.3);
+}
+
+/* Add Answer Form */
+.qd-add-answer-wrapper {
+    margin-top: var(--space-xl);
+    padding-top: var(--space-md);
+    border-top: 2px solid var(--clr-primary);
+}
+
+.qd-add-answer-form textarea {
+    width: 100%;
+    min-height: 150px;
+    padding: var(--space-md);
+    margin-bottom: var(--space-md);
+    border: 1px solid var(--clr-border);
+    border-radius: var(--border-radius-md);
+    box-sizing: border-box;
+    font-size: 1em;
+    resize: vertical;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.qd-add-answer-form textarea:focus {
+    border-color: var(--clr-primary);
+    box-shadow: 0 0 5px rgba(0, 120, 255, 0.5);
+    outline: none;
+}
+
+.qd-add-answer-form button[type="submit"] {
+    background-color: var(--clr-primary);
+    color: var(--clr-card-bg);
+    padding: 12px 25px;
+    border-radius: var(--border-radius-md);
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: 600;
+    transition: background-color 0.3s, transform 0.1s;
+}
+
+.qd-add-answer-form button[type="submit"]:hover {
+    background-color: var(--clr-primary-hover);
+}
+
+
+/* ========================================================================= */
+/* || COMMENTS STYLES */
+/* ========================================================================= */
+
+.comments-container {
+    margin-top: var(--space-lg);
+    padding: var(--space-md) 0 var(--space-sm) 0;
+}
+
+.comments-heading {
+    font-size: 1.1em;
+    color: var(--clr-text-secondary);
+    margin-bottom: var(--space-md);
+    border-bottom: 1px solid #eee;
+    padding-bottom: var(--space-sm);
+    font-weight: 600;
+    margin-left: 20px;
+}
+
+.comments-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.comment-item {
+    display: flex;
+    flex-direction: column;
+    padding: var(--space-sm) var(--space-lg);
+    border-bottom: 1px dotted var(--clr-border);
+    transition: background-color 0.2s;
+}
+
+.comment-item:hover {
+    background-color: #fcfcfc;
+}
+
+.comment-body-section {
+    font-size: 0.95em;
+    margin-bottom: var(--space-xs);
+    display: flex;
+    align-items: baseline;
+    line-height: 1.4;
+}
+
+.comment-author {
+    font-weight: bold;
+    color: var(--clr-text);
+    margin-right: 5px;
+    white-space: nowrap;
+}
+
+.comment-body {
+    color: var(--clr-text-secondary);
+}
+
+.comment-actions {
+    display: flex; /* CRITICAL: Enables auto margin alignment for delete button */
+    align-items: center;
+    gap: var(--space-md);
+    font-size: 0.85em;
+    color: var(--clr-text-secondary);
+    margin-top: var(--space-xs);
+}
+
+/* Comment Vote Buttons (Smaller scale of the main vote buttons) */
+.comment-actions .vote-btn {
+    all: unset;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    padding: 3px 6px;
+    border-radius: 3px;
+    transition: background-color 0.2s, color 0.2s;
+    font-weight: normal;
+    font-size: 0.9em;
+}
+
+.comment-actions .vote-btn:hover {
+    background-color: #f0f0f0;
+}
+
+/* Comment Delete Button (Matching Answer Delete) */
+.comment-delete-btn {
+    background-color: var(--clr-danger);
+    color: var(--clr-card-bg);
+    padding: 4px 10px; 
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.8em; 
+    transition: background-color 0.3s, transform 0.1s, box-shadow 0.3s;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-left: auto; /* Pushes button to the far right */
+}
+
+.comment-delete-btn:hover {
+    background-color: var(--clr-danger-hover);
+    box-shadow: 0 2px 4px rgba(217, 83, 79, 0.3);
+}
+
+.comment-delete-btn:active {
+    transform: translateY(1px);
+}
+
+/* Comment Form */
+.comment-form {
+    display: flex;
+    margin-top: var(--space-lg);
+    padding: var(--space-md) var(--space-lg);
+    border-top: 1px solid var(--clr-border);
+}
+
+.comment-input {
+    flex-grow: 1;
+    padding: 10px;
+    border: 1px solid var(--clr-border);
+    border-radius: var(--border-radius-md) 0 0 var(--border-radius-md);
+    font-size: 0.95em;
+    transition: border-color 0.3s;
+}
+
+.comment-input:focus {
+    border-color: var(--clr-primary);
+    outline: none;
+}
+
+.comment-form .submit-btn {
+    background-color: var(--clr-primary);
+    color: var(--clr-card-bg);
+    padding: 10px 15px;
+    border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.3s;
+    height: 40px;
+}
+
+.comment-form .submit-btn:hover {
+    background-color: var(--clr-primary-hover);
+}
+
+
+/* ========================================================================= */
 /* || Suggestions Dropdown Positioning Fix */
 /* ========================================================================= */
+/* This section handles positioning for search suggestions in the list view */
 
 .suggestions-dropdown {
     position: absolute;
-    /* FIX: Top needs to account for the height of the search input and select */
-    top: 40px; 
-    
-    /* FIX: Force full width starting from the beginning of the search form */
-    left: 0; 
+    top: 40px;
+    left: 0;
     right: 0;
     
     background-color: var(--clr-card-bg);
@@ -405,7 +709,7 @@ button, input, select, textarea {
     list-style: none;
     padding: 0;
     margin: 0;
-    z-index: 10; 
+    z-index: 10;
     max-height: 200px;
     overflow-y: auto;
 }
@@ -431,7 +735,7 @@ button, input, select, textarea {
 /* ========================================================================= */
 
 @media (max-width: 768px) {
-    .questions-container {
+    .questions-container, .qd-container {
         padding: var(--space-sm);
     }
 
@@ -454,20 +758,20 @@ button, input, select, textarea {
     }
 
     .question-card {
-        flex-direction: column; 
+        flex-direction: column;
         padding: var(--space-md);
     }
 
     .card-left-section {
-        width: 100%; 
+        width: 100%;
         padding-right: 0;
         border-right: none;
-        border-bottom: 1px solid var(--clr-border); 
+        border-bottom: 1px solid var(--clr-border);
         padding-bottom: var(--space-md);
         margin-bottom: var(--space-md);
         
-        /* Layout votes and answer count horizontally */
-        flex-direction: row; 
+        /* Layout votes and answer bubble horizontally */
+        flex-direction: row;
         justify-content: space-between;
     }
     
@@ -479,9 +783,27 @@ button, input, select, textarea {
     .delete-btn {
         margin-left: var(--space-md);
     }
+    
+    /* DETAIL PAGE RESPONSIVENESS */
+    .qd-main-content, .qd-answer-main-row {
+        flex-direction: column;
+    }
+    
+    .answer-vote-panel-small {
+        flex-direction: row;
+        justify-content: flex-start;
+        width: 100%;
+        margin-top: 0;
+        padding-top: var(--space-sm);
+        border-top: 1px solid var(--clr-border);
+    }
+    
+    .comment-form {
+        padding: var(--space-md) 0;
+    }
 
     .suggestions-dropdown {
         /* On mobile, if the header action stack, ensure dropdown is positioned correctly */
-        top: 80px; /* Adjust based on stacked elements */
+        top: 80px;
     }
 }

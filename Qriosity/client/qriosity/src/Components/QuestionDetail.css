@@ -1,384 +1,231 @@
-/* ========================================================================= */
-/* || CSS VARIABLES & GLOBAL STYLES */
-/* ========================================================================= */
-
-:root {
-    /* Colors */
-    --clr-primary: #0078FF;             /* Vibrant Blue for links/upvote fill */
-    --clr-primary-hover: #0056b3;
-    --clr-accent-downvote: #d9534f;    /* Red for downvote */
-    --clr-background: #f8f9fa;         /* Very light gray page background */
-    --clr-card-bg: #ffffff;            /* White content background */
-    --clr-border: #e6e6e6;             /* Light subtle border */
-    --clr-text: #232629;                /* Dark text */
-    --clr-text-secondary: #6a737c;      /* Muted text for meta info */
-    --clr-comment-bg: #f7f7f7;         /* Very light gray for comments (subtle shading) */
-    --clr-danger: #d9534f;              /* Red for delete actions */
-    --clr-focus-ring: rgba(0, 120, 255, 0.4);
-
-    /* Spacing */
-    --space-xs: 4px;
-    --space-sm: 8px;
-    --space-md: 16px;
-    --space-lg: 24px;
-    --space-xl: 32px;
-
-    /* Shadows & Borders */
-    --shadow-subtle: 0 1px 4px rgba(0, 0, 0, 0.05);
-    --border-radius-md: 6px;
-    --border-radius-lg: 10px;
-}
-
-/* Global Base Styles */
+/* =========================================
+   1. GLOBAL & LAYOUT
+   ========================================= */
 .qd-container {
     max-width: 1100px;
-    margin: var(--space-xl) auto;
-    padding: var(--space-md);
-    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
-    color: var(--clr-text);
-    background-color: var(--clr-background);
+    margin: 40px auto;
+    padding: 0 20px;
+    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+    line-height: 1.6;
 }
 
-button {
-    cursor: pointer;
-    border: none;
-    border-radius: var(--border-radius-md);
-    padding: var(--space-sm) var(--space-md);
-    font-weight: 500;
-    transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s;
-    white-space: nowrap; 
-}
-
-/* Base text area and input styles */
-textarea, input[type="text"] {
-    width: 100%;
-    padding: var(--space-sm) var(--space-md);
-    border: 1px solid var(--clr-border);
-    border-radius: var(--border-radius-md);
-    box-sizing: border-box;
-    font-size: 1em;
-    transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-textarea:focus, input[type="text"]:focus {
-    outline: none;
-    border-color: var(--clr-primary);
-    box-shadow: 0 0 0 2px var(--clr-focus-ring);
-}
-
-
-/* ========================================================================= */
-/* || QUESTION & ANSWER CARD STRUCTURE (Delineation) */
-/* ========================================================================= */
-
-.qd-question-card {
-    /* PRIMARY FOCUS: Main Question */
-    background-color: var(--clr-card-bg);
-    border: 1px solid var(--clr-border);
-    border-top: 4px solid var(--clr-primary); 
-    border-radius: var(--border-radius-lg);
-    box-shadow: var(--shadow-subtle);
-    
-    margin-bottom: var(--space-lg); 
-    padding-top: var(--space-md); 
-}
-
-.qd-answers-section h3 {
-    font-size: 1.6em;
-    font-weight: 600;
-    
-    margin-bottom: var(--space-sm); 
-    padding-bottom: var(--space-xs); 
-    
-    border-bottom: 1px solid var(--clr-border);
-}
-
+/* Base Card Styling for Q/A */
+.qd-question-card,
 .qd-answer-card {
-    /* Clearer Answer Separation */
-    background-color: var(--clr-card-bg); /* Use white background */
-    border: 1px solid var(--clr-border); /* Full border to define the box */
-    border-radius: var(--border-radius-md);
-    box-shadow: var(--shadow-subtle);
-    
-    margin-bottom: var(--space-md); /* Space between answer boxes */
-    padding: 0; /* Padding handled internally */
-}
-.qd-answers-section .qd-answer-card:last-of-type {
-    border-bottom: 1px solid var(--clr-border); /* Ensure last item has bottom border too */
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    padding: 20px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08); /* Stronger professional shadow */
+    transition: all 0.3s ease;
 }
 
-
-/* --- Content Layout (Flex for Votes/Body) --- */
+.qd-question-card:hover,
+.qd-answer-card:hover {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
 
 .qd-main-content {
     display: flex;
-    gap: var(--space-md);
-    
-    /* Internal padding for the vote/body content */
-    padding: var(--space-md) var(--space-lg); 
-    border-bottom: 1px solid var(--clr-border); /* Separator between body and comments */
-}
-/* Remove bottom border on the last element before comments section */
-.qd-answer-card .qd-main-content:last-child {
-    border-bottom: none;
+    gap: 30px;
+    margin-bottom: 20px; /* Space between question body and comments */
 }
 
+/* Answer specific structure */
+.qd-answer-main-row {
+    display: flex;
+    gap: 20px;
+    width: 100%;
+    /* Order: Answer Content (90%) | Vote Panel (10%) */
+    flex-direction: row; 
+}
 
 .qd-content-area {
     flex-grow: 1;
-    min-width: 0;
+    min-width: 0; /* Ensures content area doesn't push votes off-screen */
 }
 
 .qd-title {
-    font-size: 1.8em;
-    font-weight: 600;
+    color: #0056b3; /* Deep blue title */
+    font-size: 2em;
+    font-weight: 700;
     margin-top: 0;
-    
-    margin-bottom: var(--space-sm); 
-    
-    line-height: 1.3;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #f0f0f0;
 }
 
-.qd-body, .qd-answer-body {
-    line-height: 1.6;
-    
-    padding-right: var(--space-lg); 
-    
-    margin-bottom: var(--space-sm); 
+.qd-body,
+.qd-answer-body {
+    font-size: 1.1em;
+    color: #444;
 }
 
-/* --- Footer and Delete Button --- */
-
-.qd-answer-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: var(--space-md);
-    
-    margin-top: var(--space-sm); 
-    padding-top: var(--space-sm); 
-    
-    border-top: 1px dashed var(--clr-border);
+/* Code blocks inside answers/questions */
+.qd-body pre,
+.qd-answer-body pre {
+    background-color: #f4f4f9;
+    border: 1px solid #ddd;
+    border-left: 5px solid #007bff; /* Highlight code blocks */
+    padding: 10px;
+    border-radius: 4px;
+    overflow-x: auto;
+    font-family: 'Consolas', 'Courier New', monospace;
 }
 
-.answer-author-meta {
-    color: var(--clr-text-secondary);
-    font-size: 0.9em;
+/* =========================================
+   2. VOTING PANELS (Arrows)
+   ========================================= */
+
+/* Keyframe for vote animation */
+@keyframes vote-pop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+    100% { transform: scale(1); }
 }
 
-.delete-btn {
-    background-color: var(--clr-danger);
-    color: var(--clr-card-bg);
-    padding: var(--space-xs) var(--space-sm);
-    font-size: 0.8em;
-}
-.delete-btn:hover {
-    background-color: var(--clr-danger);
-    opacity: 0.9;
-}
-
-
-/* ========================================================================= */
-/* || VOTE PANEL & INTERACTIVITY (No change needed) */
-/* ========================================================================= */
-
+/* QUESTION Vote Panel (Larger for main question) */
 .qd-vote-panel {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: var(--space-xs); 
-    flex-shrink: 0; 
-    width: 50px;
-    padding-top: var(--space-xs); 
+    width: 60px;
+    padding-right: 15px;
+    border-right: 1px solid #f0f0f0;
+}
+
+/* ANSWER Vote Panel (Smaller and on the right) */
+.answer-vote-panel-small {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    width: 50px; /* Constrain width */
+    padding: 0;
+    border-right: none;
+    flex-shrink: 0; /* Don't shrink when content is large */
+    margin-top: 10px; /* Align votes with the top of the answer content */
 }
 
 .vote-btn {
-    background-color: transparent;
-    border: 1px solid var(--clr-border);
-    padding: 8px 0; 
-    width: 100%;
-    transition: all 0.2s ease-out;
+    all: unset;
     display: flex;
-    flex-direction: column; 
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
+    cursor: pointer;
+    color: #777;
+    padding: 8px; /* Slightly smaller padding for a compact look */
+    margin: 3px 0;
+    border-radius: 6px;
+    transition: color 0.3s, background-color 0.3s, transform 0.1s;
+}
+
+.vote-btn:hover {
+    background-color: #f0f0f0;
+}
+
+/* Icon Styling */
+.vote-icon {
+    font-size: 1.6em; 
+    line-height: 1;
+    transition: color 0.3s;
 }
 
 .vote-count {
-    font-size: 1.1em;
-    font-weight: 700;
-    color: var(--clr-text);
-    line-height: 1;
+    font-size: 0.9em;
+    font-weight: 600;
+    margin-top: 2px;
 }
 
-/* SVG Icon Styling */
-.icon-thumb {
-    width: 24px;
-    height: 24px;
-    stroke: var(--clr-text-secondary); 
-    fill: none; 
-    transition: stroke 0.2s ease, fill 0.3s ease;
-}
+/* Voted States */
+.upvote-btn.upvoted { color: #28a745; animation: vote-pop 0.3s ease-out; }
+.downvote-btn.downvoted { color: #dc3545; animation: vote-pop 0.3s ease-out; }
 
-/* --- Hover States --- */
-.vote-btn:not([disabled]):hover {
-    border-color: var(--clr-primary);
-    background-color: #f0f8ff;
-}
-.vote-btn:not([disabled]):hover .icon-thumb {
-    stroke: var(--clr-primary);
-    transform: scale(1.05);
-}
-
-/* --- Disabled State (Locked out) --- */
-.vote-btn[disabled] {
+/* Disabled state for cross-voting */
+.vote-btn:disabled {
     cursor: not-allowed;
     opacity: 0.5;
-    background-color: transparent;
+    background-color: transparent !important;
 }
 
-
-/* --- VOTED (ACTIVE/FILLED) STATES --- */
-.vote-btn.upvoted {
-    border-color: var(--clr-primary); 
-    background-color: #f0f8ff; 
-}
-.vote-btn.upvoted .icon-thumb {
-    fill: var(--clr-primary);
-    stroke: var(--clr-primary);
-}
-
-.vote-btn.downvoted {
-    border-color: var(--clr-danger);
-    background-color: #fff0f0; 
-}
-.vote-btn.downvoted .icon-thumb {
-    fill: var(--clr-danger);
-    stroke: var(--clr-danger);
-}
-
-
-/* ========================================================================= */
-/* || COMMENTS SECTION (Nested Clarity) */
-/* ========================================================================= */
-
-.comments-container {
-    background-color: var(--clr-comment-bg);
-    border-top: 1px solid var(--clr-border);
-    
-    padding: var(--space-sm) var(--space-lg);
-}
-
-.comments-container h5 {
-    font-size: 1em;
-    font-weight: 600;
-    color: var(--clr-text-secondary);
-    
-    margin: 0 0 var(--space-xs) 0;
-    
-    padding-bottom: var(--space-xs);
-    border-bottom: 1px solid var(--clr-border);
-}
-
-/* Styling for comments nested under answers (extra indentation) */
-.qd-answer-card .comments-container {
-    background-color: transparent; 
-    
-    /* ADDED BORDER to visually enforce nesting/indentation */
-    border-left: 2px solid var(--clr-border); 
-    padding-left: var(--space-lg); 
-}
-
-.comments-list {
-    list-style: none;
-    padding: 0;
-    margin-bottom: var(--space-sm); 
-}
-
-.comment-item {
-    border-bottom: 1px dotted #ccc;
-    padding: var(--space-xs) 0;
-    font-size: 0.9em;
+/* =========================================
+   3. ANSWER FOOTER & DELETE
+   ========================================= */
+.qd-answer-footer {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: var(--space-xs);
+    border-top: 1px solid #f0f0f0;
+    padding-top: 10px;
+    margin-top: 15px;
+    font-size: 0.9em;
+    color: #666;
 }
 
-.comment-author {
-    font-weight: 700;
-    color: var(--clr-primary);
-    flex-shrink: 0;
+.delete-btn {
+    background-color: #ff4d4f;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.3s, transform 0.1s, box-shadow 0.3s;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-/* --- Comment Delete Button --- */
-.comment-delete-btn {
-    background-color: var(--clr-danger);
-    color: var(--clr-card-bg);
-    padding: 4px 8px;
-    font-size: 0.8em;
-    margin-left: auto; 
-    min-width: 50px; 
+.delete-btn:hover {
+    background-color: #fa5e61;
+    box-shadow: 0 4px 6px rgba(255, 77, 79, 0.3);
 }
 
-.comment-delete-btn:hover {
-    opacity: 0.8;
+.delete-btn:active {
+    transform: translateY(1px);
 }
 
-/* --- Answer Form --- */
+/* =========================================
+   4. ADD ANSWER FORM
+   ========================================= */
 .qd-add-answer-wrapper {
-    padding: var(--space-md) var(--space-lg);
-    border-top: 1px solid var(--clr-border);
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 2px solid #007bff;
 }
 
-.qd-add-answer-form {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-md);
+.qd-add-answer-form textarea {
+    width: 100%;
+    min-height: 180px;
+    padding: 15px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-sizing: border-box;
+    font-size: 1em;
+    resize: vertical;
+    transition: border-color 0.3s, box-shadow 0.3s;
 }
 
-.qd-add-answer-form button {
-    background-color: var(--clr-primary);
-    color: var(--clr-card-bg);
-    align-self: flex-end;
-}
-.qd-add-answer-form button:hover {
-    background-color: var(--clr-primary-hover);
+.qd-add-answer-form textarea:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    outline: none;
 }
 
+.qd-add-answer-form button[type="submit"] {
+    background-color: #007bff; /* Primary button for posting answer */
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: 600;
+    transition: background-color 0.3s, transform 0.1s;
+}
 
-/* ========================================================================= */
-/* || RESPONSIVENESS */
-/* ========================================================================= */
-
-@media (max-width: 768px) {
-    .qd-container {
-        padding: var(--space-sm);
-    }
-    
-    .qd-main-content {
-        flex-direction: column;
-        padding: 0 var(--space-md) var(--space-md) var(--space-md);
-    }
-
-    .qd-vote-panel {
-        flex-direction: row; /* Stack votes horizontally on mobile */
-        width: 100%;
-        justify-content: flex-start; /* Left-align votes */
-        border-bottom: 1px solid var(--clr-border);
-        padding-bottom: var(--space-md);
-        margin-bottom: var(--space-md);
-        gap: var(--space-lg);
-    }
-    
-    .qd-vote-panel .vote-btn {
-        width: 80px; 
-        padding: 6px 12px;
-    }
-
-    .comments-container {
-        padding: var(--space-md);
-    }
-    .qd-answer-card .comments-container {
-        padding-left: var(--space-md);
-    }
+.qd-add-answer-form button[type="submit"]:hover {
+    background-color: #0056b3;
 }

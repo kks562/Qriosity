@@ -7,7 +7,7 @@ const auth = require("../middleware/auth");
 // Vote an answer
 router.patch("/:questionId/answer/:answerId/vote", auth, async (req, res) => {
   const { questionId, answerId } = req.params;
-  const { vote } = req.body; // 1 or -1
+  const { vote } = req.body; // 1, -1, or 0
 
   if (![1, -1, 0].includes(vote)) return res.status(400).json({ msg: "Vote must be 1, -1, or 0" });
   if (!mongoose.Types.ObjectId.isValid(questionId) || !mongoose.Types.ObjectId.isValid(answerId))
@@ -22,47 +22,44 @@ router.patch("/:questionId/answer/:answerId/vote", auth, async (req, res) => {
 
     if (!answer.userVotes) answer.userVotes = [];
 
-    const existingVote = answer.userVotes.find(v => v.user.toString() === req.user.id);
-    if (existingVote) {
-      if (vote === 0) {
-        answer.userVotes = answer.userVotes.filter(v => v.user.toString() !== req.user.id);
-      } else {
-        existingVote.vote = vote;
-      }
-    } else if (vote !== 0) {
+    // Remove existing vote if toggling to 0
+    answer.userVotes = answer.userVotes.filter(v => v.user.toString() !== req.user.id);
+
+    if (vote !== 0) {
       answer.userVotes.push({ user: req.user.id, vote });
     }
 
     await question.save();
-    res.json({ totalVotes: answer.userVotes.reduce((a,b) => a + b.vote, 0), userVotes: answer.userVotes });
+
+    // Populate author before sending back
+    const updatedAnswer = question.answers.id(answerId);
+    await Question.populate(updatedAnswer, { path: "author", select: "name" });
+
+    res.json(updatedAnswer);
   } catch (err) {
     console.error("Vote answer error:", err);
     res.status(500).json({ msg: "Server error" });
   }
 });
 
+
+
 // ==============================
-// Get all questions
-// ==============================
+// routes/questions.js
 router.get("/", async (req, res) => {
   try {
-    const page = Math.max(1, parseInt(req.query.page || "1"));
-    const limit = Math.min(50, parseInt(req.query.limit || "20"));
-    const skip = (page - 1) * limit;
-
     const questions = await Question.find()
       .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
       .populate("author", "name")
-      .populate({ path: "answers.author", select: "name" });
+      .populate("answers.author", "name"); // ensure authors are populated
 
-    res.json(questions);
+    res.json(questions); // send all questions
   } catch (err) {
     console.error(err);
     res.status(500).json({ msg: "Server error" });
   }
 });
+
 
 // ==============================
 // Search / autosuggest

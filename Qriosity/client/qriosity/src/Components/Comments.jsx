@@ -1,6 +1,7 @@
 import { useEffect, useState, useContext } from "react";
 import { AuthContext } from "./AuthContext";
 import axios from "axios";
+import "./Comments.css";
 
 export default function Comments({ parentId, parentType, className }) {
   const { user } = useContext(AuthContext);
@@ -55,7 +56,8 @@ export default function Comments({ parentId, parentType, className }) {
 
   // Delete comment
   const handleDelete = async (commentId) => {
-    if (!window.confirm("Delete this comment?")) return;
+    // NOTE: Use a custom modal instead of window.confirm in a real app
+    if (!window.confirm("Delete this comment?")) return; 
     try {
       await axios.delete(`http://localhost:5000/api/comments/${commentId}`, {
         headers: { Authorization: `Bearer ${user.token}` }
@@ -69,17 +71,22 @@ export default function Comments({ parentId, parentType, className }) {
 
   // Vote comment
   const handleVoteComment = async (commentId, voteDirection) => {
+    // voteDirection will be 1, -1, or 0
     if (!user?.token) return alert("Login to vote");
+
     try {
       const res = await axios.patch(
         `http://localhost:5000/api/comments/${commentId}/vote`,
-        { vote: voteDirection },
+        { vote: voteDirection }, // Sends 1, -1, or 0
         { headers: { Authorization: `Bearer ${user.token}` } }
       );
+
+      // Update the local state with the new data from the server
       setComments(prev => prev.map(c => c._id === commentId ? res.data : c));
     } catch (err) {
       console.error(err);
       alert(err.response?.data?.msg || "Failed to vote comment");
+      fetchComments(); // Sync state on failure
     }
   };
 
@@ -102,30 +109,37 @@ export default function Comments({ parentId, parentType, className }) {
                   <span className="comment-body">{c.body}</span>
                 </div>
 
-               <div className="comment-actions">
-  <button
-    onClick={() => handleVoteComment(c._id, 1)}
-    className={`vote-btn upvote-btn ${userVote === 1 ? "upvoted" : ""}`}
-  >
-    Upvote {(c.userVotes || []).filter(v => v.vote === 1).length}
-  </button>
-  <button
-    onClick={() => handleVoteComment(c._id, -1)}
-    className={`vote-btn downvote-btn ${userVote === -1 ? "downvoted" : ""}`}
-  >
-    Downvote {(c.userVotes || []).filter(v => v.vote === -1).length}
-  </button>
+                <div className="comment-actions">
+                  {/* Upvote Button */}
+                  <button
+                    onClick={() => handleVoteComment(c._id, userVote === 1 ? 0 : 1)}
+                    className={`vote-btn upvote-btn ${userVote === 1 ? "upvoted" : ""}`}
+                    disabled={!user || userVote === -1} // Disable if already downvoted
+                  >
+                    <span className="vote-icon">&#x25B2;</span>
+                    <span className="vote-text">{(c.userVotes || []).filter(v => v.vote === 1).length}</span>
+                  </button>
 
-  {user && c.author && user.id === c.author._id && (
-    <button
-      onClick={() => handleDelete(c._id)}
-      className="comment-delete-btn"
-    >
-      Delete
-    </button>
-  )}
-</div>
+                  {/* Downvote Button */}
+                  <button
+                    onClick={() => handleVoteComment(c._id, userVote === -1 ? 0 : -1)}
+                    className={`vote-btn downvote-btn ${userVote === -1 ? "downvoted" : ""}`}
+                    disabled={!user || userVote === 1} // Disable if already upvoted
+                  >
+                    <span className="vote-icon">&#x25BC;</span>
+                    <span className="vote-text">{(c.userVotes || []).filter(v => v.vote === -1).length}</span>
+                  </button>
 
+                  {/* DELETE BUTTON (FIXED POSITION) */}
+                  {user && c.author && user.id === c.author._id && (
+                    <button
+                      onClick={() => handleDelete(c._id)}
+                      className="comment-delete-btn"
+                    >
+                      Delete
+                    </button>
+                  )}
+                </div>
               </li>
             );
           })}

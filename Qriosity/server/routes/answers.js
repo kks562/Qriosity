@@ -4,11 +4,12 @@ const router = express.Router();
 const Question = require("../models/Questions");
 const auth = require("../middleware/auth");
 
+// ========================
 // Add answer
+// ========================
 router.post("/:questionId", auth, async (req, res) => {
   const { questionId } = req.params;
   const { body } = req.body;
-
   if (!body) return res.status(400).json({ msg: "Answer body required" });
   if (!mongoose.Types.ObjectId.isValid(questionId))
     return res.status(400).json({ msg: "Invalid questionId" });
@@ -29,9 +30,11 @@ router.post("/:questionId", auth, async (req, res) => {
     question.answers.push(answer);
     await question.save();
 
-    const created = question.answers[question.answers.length - 1];
-    await Question.populate(created, { path: "author", select: "name" });
+    // Populate author for the new answer
+    const populatedQuestion = await Question.findById(questionId)
+      .populate({ path: "answers.author", select: "name" });
 
+    const created = populatedQuestion.answers.id(answer._id);
     res.status(201).json(created);
   } catch (err) {
     console.error("Add answer error:", err);
@@ -39,7 +42,9 @@ router.post("/:questionId", auth, async (req, res) => {
   }
 });
 
+// ========================
 // Delete answer
+// ========================
 router.delete("/:questionId/:answerId", auth, async (req, res) => {
   const { questionId, answerId } = req.params;
 
@@ -64,12 +69,15 @@ router.delete("/:questionId/:answerId", auth, async (req, res) => {
   }
 });
 
+// ========================
 // Vote answer
+// ========================
 router.patch("/:questionId/:answerId/vote", auth, async (req, res) => {
   const { questionId, answerId } = req.params;
-  const { vote } = req.body; // 1 or -1
+  const { vote } = req.body; // 1, -1, or 0 (newly supported)
 
-  if (![1, -1].includes(vote)) return res.status(400).json({ msg: "Vote must be 1 or -1" });
+  // ⚠️ FIX: Allow 0 for unvoting
+  if (![1, -1, 0].includes(vote)) return res.status(400).json({ msg: "Vote must be 1, -1, or 0" });
   if (!mongoose.Types.ObjectId.isValid(questionId) || !mongoose.Types.ObjectId.isValid(answerId))
     return res.status(400).json({ msg: "Invalid ID(s)" });
 
@@ -80,20 +88,30 @@ router.patch("/:questionId/:answerId/vote", auth, async (req, res) => {
     const answer = question.answers.id(answerId);
     if (!answer) return res.status(404).json({ msg: "Answer not found" });
 
-    // Remove existing vote if toggling
+    // ALWAYS Remove existing vote first (handles unvoting/switching)
     answer.upvoters = answer.upvoters.filter(u => u.toString() !== req.user.id);
     answer.downvoters = answer.downvoters.filter(u => u.toString() !== req.user.id);
 
+    // Apply new vote only if vote is 1 or -1. If vote is 0, we stop here (unvote complete).
     if (vote === 1) answer.upvoters.push(req.user.id);
     if (vote === -1) answer.downvoters.push(req.user.id);
 
     await question.save();
 
+    // Populate author before returning
+    const populatedQuestion = await Question.findById(questionId)
+      .populate({ path: "answers.author", select: "name" });
+
+    const updatedAnswer = populatedQuestion.answers.id(answerId);
+    
+    // Prepare the final response object with calculated upvotes/downvotes
     res.json({
-      ...answer.toObject(),
-      upvotes: answer.upvoters.length,
-      downvotes: answer.downvoters.length,
-      votes: answer.upvoters.length - answer.downvoters.length,
+      ...updatedAnswer.toObject(),
+      // ⚠️ IMPORTANT: In a real app, you should also include userVotes property
+      // or ensure res.data contains enough info for the frontend to update getUserVote(a.userVotes)
+      upvotes: updatedAnswer.upvoters.length,
+      downvotes: updatedAnswer.downvoters.length,
+      votes: updatedAnswer.upvoters.length - updatedAnswer.downvoters.length,
     });
   } catch (err) {
     console.error("Answer vote error:", err);

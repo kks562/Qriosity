@@ -53,20 +53,26 @@ export default function QuestionDetail() {
   // Vote answer
   const handleVoteAnswer = async (answerId, voteDirection) => {
     if (!user?.token) return alert("Login to vote");
+
     try {
       const res = await axios.patch(
-        `http://localhost:5000/api/answers/${id}/${answerId}/vote`,
-        { vote: voteDirection },
+        // Ensure 'id' here is the Question ID from useParams()
+        `http://localhost:5000/api/answers/${id}/${answerId}/vote`, 
+        { vote: voteDirection }, // voteDirection will be 1, -1, or 0
         { headers: { Authorization: `Bearer ${user.token}` } }
       );
+
+      // This updates the entire answers array using the data returned by the API
       setQuestion(prev => ({
         ...prev,
         answers: prev.answers.map(a => (a._id === answerId ? res.data : a))
       }));
     } catch (err) {
       alert(err.response?.data?.msg || "Failed to vote answer");
+      // You might want to re-fetch the question here to sync state if the API call fails.
     }
   };
+
 
   // Post answer
   const handleAnswerSubmit = async (e) => {
@@ -80,6 +86,7 @@ export default function QuestionDetail() {
         { body: newAnswer },
         { headers: { Authorization: `Bearer ${user.token}` } }
       );
+
       setQuestion(prev => ({ ...prev, answers: [...prev.answers, res.data] }));
       setNewAnswer("");
     } catch (err) {
@@ -87,9 +94,11 @@ export default function QuestionDetail() {
     }
   };
 
+
   // Delete answer
   const handleDeleteAnswer = async (answerId) => {
-    if (!window.confirm("Delete this answer?")) return;
+    // NOTE: Use a custom modal instead of window.confirm in a real app
+    if (!window.confirm("Delete this answer?")) return; 
     try {
       await axios.delete(
         `http://localhost:5000/api/answers/${id}/${answerId}`,
@@ -109,23 +118,14 @@ export default function QuestionDetail() {
 
   const questionVote = getUserVote(question.userVotes);
 
+  // QuestionDetail.js (Updated return statement)
+
   return (
     <div className="qd-container">
       <div className="qd-question-card">
         <div className="qd-main-content">
           <div className="qd-vote-panel">
-            <button
-              onClick={() => handleVoteQuestion(questionVote === 1 ? 0 : 1)}
-              className={`vote-btn upvote-btn ${questionVote === 1 ? "upvoted" : ""}`}
-            >
-              <span className="vote-count">{question.upvotes}</span> Upvote
-            </button>
-            <button
-              onClick={() => handleVoteQuestion(questionVote === -1 ? 0 : -1)}
-              className={`vote-btn downvote-btn ${questionVote === -1 ? "downvoted" : ""}`}
-            >
-              <span className="vote-count">{question.downvotes}</span> Downvote
-            </button>
+            {/* PLACEHOLDER for Question Vote Buttons - Add them here if needed */}
           </div>
 
           <div className="qd-content-area">
@@ -142,23 +142,11 @@ export default function QuestionDetail() {
         {question.answers?.map(a => {
           const userVote = getUserVote(a.userVotes);
           return (
+            // START of the clean, desired answer structure
             <div key={a._id} className="qd-answer-card">
-              <div className="qd-main-content">
-                <div className="qd-vote-panel answer-vote-panel">
-                  <button
-                    onClick={() => handleVoteAnswer(a._id, userVote === 1 ? 0 : 1)}
-                    className={`vote-btn upvote-btn ${userVote === 1 ? 'upvoted' : ''}`}
-                  >
-                    <span className="vote-count">{a.upvotes}</span> Upvote
-                  </button>
-                  <button
-                    onClick={() => handleVoteAnswer(a._id, userVote === -1 ? 0 : -1)}
-                    className={`vote-btn downvote-btn ${userVote === -1 ? 'downvoted' : ''}`}
-                  >
-                    <span className="vote-count">{a.downvotes}</span> Downvote
-                  </button>
-                </div>
-
+              <div className="qd-answer-main-row"> {/* New wrapper for content and votes */}
+                
+                {/* 1. Answer Body (The content is now the main focus) */}
                 <div className="qd-content-area">
                   <div className="qd-answer-body" dangerouslySetInnerHTML={{ __html: a.body }} />
                   <div className="qd-answer-footer">
@@ -168,9 +156,36 @@ export default function QuestionDetail() {
                     )}
                   </div>
                 </div>
+                
+                {/* 2. Sleek Vertical Vote Panel (Smaller, to the side) */}
+                <div className="qd-vote-panel answer-vote-panel-small">
+                  {/* Upvote Button */}
+                  <button
+                    onClick={() => handleVoteAnswer(a._id, userVote === 1 ? 0 : 1)}
+                    className={`vote-btn upvote-btn ${userVote === 1 ? 'upvoted' : ''}`}
+                    disabled={!user || userVote === -1}
+                  >
+                    <span className="vote-icon">&#x25B2;</span>
+                    <span className="vote-count">{a.upvotes}</span>
+                  </button>
+                  
+                  {/* Downvote Button */}
+                  <button
+                    onClick={() => handleVoteAnswer(a._id, userVote === -1 ? 0 : -1)}
+                    className={`vote-btn downvote-btn ${userVote === -1 ? 'downvoted' : ''}`}
+                    disabled={!user || userVote === 1}
+                  >
+                    <span className="vote-count">{a.downvotes}</span>
+                    <span className="vote-icon">&#x25BC;</span>
+                  </button>
+                </div>
+
               </div>
+              
+              {/* Comments Section (Kept separate below the main answer content) */}
               <Comments parentId={a._id} parentType="answer" />
             </div>
+            // END of the clean answer structure
           );
         })}
       </div>

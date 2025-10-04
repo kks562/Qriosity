@@ -1,57 +1,90 @@
-import { Routes, Route, Link, useLocation } from "react-router-dom";
-import { AuthProvider } from "./Components/AuthContext";
+import { Routes, Route, Link, useLocation, useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import { AuthProvider, AuthContext } from "./Components/AuthContext";
 import Login from "./Components/Login";
 import Register from "./Components/Register";
 import Questions from "./Components/Questions";
 import QuestionDetail from "./Components/QuestionDetail";
-import "./Components/Navbar.css"; // Navbar styling
+import "./Components/Navbar.css";
 
-// Inner component to handle conditional rendering using hooks
+function Navbar() {
+  const { user, logout } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();               // Remove token and user info
+    navigate("/register");  // Redirect to register page
+  };
+
+  return (
+    <nav className="navbar">
+      <div className="navbar-container">
+        <Link to="/questions" className="navbar-logo">
+          Qriosity
+        </Link>
+        {user && (
+          <div
+  style={{
+    display: "flex",
+    alignItems: "center",
+    gap: "15px",
+  }}
+>
+  <span
+    style={{
+      fontWeight: 500,
+      color: "blue",
+    }}
+  >
+    Hello, {user.name}
+  </span>
+  <button
+    onClick={handleLogout}
+    style={{
+      backgroundColor: "#ff4d4f",
+      color: "white",
+      border: "none",
+      padding: "6px 12px",
+      borderRadius: "5px",
+      cursor: "pointer",
+      fontWeight: "bold",
+    }}
+    onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#ff7875")}
+    onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#ff4d4f")}
+  >
+    Logout
+  </button>
+</div>
+
+        )}
+      </div>
+    </nav>
+  );
+}
+
 function AppContent() {
-    const location = useLocation();
+  const location = useLocation();
+  const isAuthPage = location.pathname === "/" || location.pathname === "/login" || location.pathname === "/register";
 
-    // Determine if the current page is an authentication page
-    // (Assuming the root path "/" also lands on the Login page, based on your routes)
-    const isAuthPage = location.pathname === '/login' || 
-                       location.pathname === '/register' ||
-                       location.pathname === '/';
+  return (
+    <>
+      {!isAuthPage && <Navbar />}  {/* Show navbar only on non-auth pages */}
 
-    return (
-        <>
-            {/* Conditional Navbar Rendering: Only show if NOT an auth page */}
-            {!isAuthPage && (
-                <nav className="navbar">
-                    <div className="navbar-container">
-                        <Link to="/questions" className="navbar-logo">
-                            Qriosity
-                        </Link>
-                        <div className="navbar-links">
-                            {/* NOTE: You should replace these links with actual user status (e.g., Logout) 
-                                if the user is authenticated */}
-                            <Link to="/register" className="navbar-link">Register</Link>
-                            <Link to="/login" className="navbar-link">Login</Link>
-                        </div>
-                    </div>
-                </nav>
-            )}
-
-            {/* Routes */}
-            <Routes>
-                <Route path="/" element={<Login />} /> {/* default page */}
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/questions" element={<Questions />} />
-                <Route path="/questions/:id" element={<QuestionDetail />} />
-            </Routes>
-        </>
-    );
+      <Routes>
+        <Route path="/" element={<Login />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/questions" element={<Questions />} />
+        <Route path="/questions/:id" element={<QuestionDetail />} />
+      </Routes>
+    </>
+  );
 }
 
 export default function App() {
-    return (
-        <AuthProvider>
-            {/* The main content (with conditional Navbar) is rendered here */}
-            <AppContent />
-        </AuthProvider>
-    );
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
+  );
 }

@@ -167,7 +167,6 @@ export default function Questions() {
   return (
     <div className="questions-container">
       <div className="questions-header">
-        <h2>All Questions</h2>
         <div className="header-actions">
           <div className="wide-search-form">
             <select
