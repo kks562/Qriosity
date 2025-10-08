@@ -1,0 +1,165 @@
+/* =========================================
+   COMMENTS STYLES
+   ========================================= */
+
+/* Comment Container */
+.comments-container {
+    margin-top: 25px;
+    padding: 15px 0 5px 0;
+}
+
+/* Comments Heading */
+.comments-heading {
+    font-size: 1.1em;
+    color: #555;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 8px;
+    font-weight: 600;
+    margin-left: 20px;
+}
+
+/* List of Comments */
+.comments-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.comment-item {
+    display: flex;
+    flex-direction: column;
+    padding: 10px 20px 10px 20px;
+    border-bottom: 1px dotted #e0e0e0;
+    transition: background-color 0.2s;
+}
+
+.comment-item:hover {
+    background-color: #fcfcfc;
+}
+
+/* Comment Body and Author */
+.comment-body-section {
+    font-size: 0.95em;
+    margin-bottom: 5px;
+    display: flex;
+    align-items: baseline;
+    line-height: 1.4;
+}
+
+.comment-author {
+    font-weight: bold;
+    color: #444;
+    margin-right: 5px;
+    white-space: nowrap;
+}
+
+.comment-body {
+    word-wrap: break-word;
+    white-space: pre-wrap;
+    color: #666;
+}
+
+/* --- COMMENT ACTIONS (CRITICAL FOR POSITIONING) --- */
+.comment-actions {
+    display: flex; /* CRITICAL: Enables auto margin alignment */
+    align-items: center;
+    gap: 15px;
+    font-size: 0.85em;
+    color: #777;
+    margin-top: 5px;
+}
+
+.comment-actions .vote-btn {
+    all: unset;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    padding: 3px 6px;
+    border-radius: 3px;
+    transition: background-color 0.2s, color 0.2s;
+    font-weight: normal;
+    font-size: 0.9em;
+}
+
+.comment-actions .vote-btn:hover {
+    background-color: #f0f0f0;
+}
+
+/* Vote Styling */
+.comment-actions .vote-icon {
+    font-size: 1em; 
+}
+.comment-actions .vote-text {
+    font-weight: 500;
+}
+.comment-actions .upvote-btn.upvoted { color: #28a745; }
+.comment-actions .downvote-btn.downvoted { color: #dc3545; }
+.comment-actions .vote-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.4;
+}
+
+/* --- COMMENT DELETE BUTTON STYLING --- */
+.comment-delete-btn {
+    background-color: #ff4d4f; /* Red background (like answer delete) */
+    color: white;
+    border: none;
+    padding: 4px 10px; 
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.8em; 
+    transition: background-color 0.3s, transform 0.1s, box-shadow 0.3s;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-left: auto; /* CRITICAL: Pushes the button to the far right */
+}
+
+.comment-delete-btn:hover {
+    background-color: #fa5e61;
+    box-shadow: 0 2px 4px rgba(255, 77, 79, 0.3);
+}
+
+.comment-delete-btn:active {
+    transform: translateY(1px);
+}
+
+/* Comment Form */
+.comment-form {
+    display: flex;
+    margin-top: 20px;
+    padding: 15px 20px;
+    border-top: 1px solid #eee;
+}
+
+.comment-input {
+    flex-grow: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px 0 0 4px;
+    font-size: 0.95em;
+    transition: border-color 0.3s;
+}
+
+.comment-input:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+.comment-form .submit-btn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 0 4px 4px 0;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.3s;
+    height: 40px;
+}
+
+.comment-form .submit-btn:hover {
+    background-color: #0056b3;
+}

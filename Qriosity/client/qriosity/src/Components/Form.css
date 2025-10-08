@@ -1,0 +1,40 @@
+/* Form.css */
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #f3f4f6;
+}
+.form {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  width: 24rem;
+  display: flex;
+  flex-direction: column;
+}
+.form input, .form textarea {
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+  border-radius: 0.25rem;
+  border: 1px solid #ccc;
+}
+.form button {
+  padding: 0.5rem;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+}
+.form button:hover { background-color: #2563eb; }
+.error { color: red; text-align: center; }
+
+/* Questions.css */
+.questions-container { padding: 2rem; max-width: 800px; margin: auto; }
+.question-card, .answer-card { padding: 1rem; background: #fff; margin-bottom: 1rem; border-radius: 0.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+.questions-container input, .questions-container textarea { width: 100%; padding: 0.5rem; margin-bottom: 1rem; border: 1px solid #ccc; border-radius: 0.25rem; }
+.questions-container button { padding: 0.5rem 1rem; background-color: #3b82f6; color: white; border: none; border-radius: 0.25rem; cursor: pointer; }
+.questions-container button:hover { background-color: #2563eb; }

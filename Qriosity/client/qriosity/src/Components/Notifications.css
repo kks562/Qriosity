@@ -1,0 +1,270 @@
+/* ============================================= */
+/* ==         Qriosity Notifications CSS        == */
+/* ============================================= */
+
+
+/* --- Main Wrapper & Bell Icon --- */
+.notification-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.navbar-notification-bell {
+  font-size: 20px;
+  cursor: pointer;
+  color: #f0f0f0; /* Lighter color for the icon */
+  transition: color 0.2s ease-in-out;
+  position: relative; /* Needed for the badge positioning */
+}
+
+.navbar-notification-bell:hover {
+  color: #ffffff; /* Brighter on hover */
+}
+
+/* Red dot for unread count on the bell icon */
+.unread-count-badge {
+  position: absolute;
+  top: -4px;
+  right: -6px;
+  background-color: #d93025; /* A vibrant red */
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 10px;
+  font-weight: bold;
+  border: 2px solid #001f3f; /* Match navbar background for a "cutout" look */
+  line-height: 1;
+}
+
+/* --- Dropdown Container --- */
+.notifications-dropdown {
+  position: absolute;
+  top: 45px; /* More space from the bell */
+  right: 0;
+  width: 360px; /* A good width for notifications */
+  max-height: 450px;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px Apx rgba(0, 0, 0, 0.15); /* Softer, more modern shadow */
+  border: 1px solid #e0e0e0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Important for keeping rounded corners */
+  animation: dropdownFade 0.2s ease-out;
+}
+
+/* --- Header & Footer --- */
+.notifications-header {
+  padding: 12px 16px;
+  font-weight: 600;
+  font-size: 16px;
+  border-bottom: 1px solid #e0e0e0;
+  color: #333;
+  flex-shrink: 0; /* Prevent header from shrinking */
+}
+
+.notifications-list {
+  overflow-y: auto;
+  flex-grow: 1; /* Allows list to take available space and scroll */
+}
+
+.notifications-footer {
+  text-align: center;
+  padding: 10px;
+  font-size: 14px;
+  color: #1d72b8;
+  cursor: pointer;
+  border-top: 1px solid #e0e0e0;
+  flex-shrink: 0; /* Prevent footer from shrinking */
+}
+.notifications-footer:hover {
+  background-color: #f5f5f5;
+}
+
+
+/* --- Individual Notification Item (with alignment fixes) --- */
+.notification-item {
+  display: flex;
+  align-items: center; /* This is the key: Vertically centers the avatar and text block */
+  gap: 12px; /* Modern way to add space between avatar and text */
+  padding: 12px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  position: relative; /* Needed for the unread dot */
+}
+
+.notification-item:last-child {
+  border-bottom: none;
+}
+
+.notification-item:hover {
+  background-color: #f7f7f7;
+}
+
+/* Blue dot for unread items */
+.notification-item.unread::before {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 8px;
+  height: 8px;
+  background-color: #1d72b8; /* A nice blue */
+  border-radius: 50%;
+}
+
+
+/* --- Item Content (with alignment fixes) --- */
+.notification-avatar {
+  flex-shrink: 0; /* Prevents the avatar from shrinking if text is long */
+}
+
+.notification-avatar img,
+.notification-avatar .placeholder {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* margin-right is removed because we use 'gap' on the parent now */
+}
+
+.notification-content {
+  flex-grow: 1; /* Allows text to take up remaining space */
+}
+
+.notification-message {
+  font-size: 14px;
+  color: #333;
+  line-height: 1.4;
+}
+
+.notification-message strong {
+  font-weight: 600;
+  color: #000;
+}
+
+.notification-time {
+  font-size: 12px;
+  color: #888;
+  margin-top: 4px;
+}
+
+/* --- Empty State --- */
+.no-notifications {
+  padding: 40px 20px;
+  text-align: center;
+  color: #999;
+}
+
+
+/* --- Scrollbar & Animation --- */
+.notifications-list::-webkit-scrollbar {
+  width: 6px;
+}
+.notifications-list::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 3px;
+}
+.notifications-list::-webkit-scrollbar-track {
+  background: #f0f0f0;
+}
+
+@keyframes dropdownFade {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.notifications-container {
+  width: 320px;
+  max-height: 400px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0px 4px 12px rgba(0,0,0,0.15);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.notifications-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  background: #f5f5f5;
+  font-weight: bold;
+  border-bottom: 1px solid #ddd;
+}
+
+.mark-all-btn {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.mark-all-btn:hover {
+  background: #0056b3;
+}
+
+.notifications-list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.notification-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+  gap: 10px;
+}
+
+.notification-item.unread {
+  background: #e6f7ff;
+}
+
+.notification-avatar {
+  width: 40px;
+  height: 40px;
+  background: #d9d9d9;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.notification-content p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.notification-content small {
+  color: #666;
+}
+
+.unread-dot {
+  color: #1890ff;
+  font-size: 10px;
+  margin-left: auto;
+}
