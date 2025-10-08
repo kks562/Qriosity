@@ -1,0 +1,90 @@
+/* Navbar.css */
+
+.navbar {
+  background: #1e293b; /* slate-800 */
+  color: #fff;
+  padding: 12px 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  font-family: 'Inter', sans-serif;
+}
+
+.navbar-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.navbar-logo {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #f8fafc;
+  text-decoration: none;
+  letter-spacing: 1px;
+  transition: color 0.2s ease;
+}
+
+.navbar-logo:hover {
+  color: #38bdf8; /* sky-400 */
+}
+
+.navbar-user-controls {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem; /* space between greeting, profile, and logout */
+}
+
+.navbar-greeting {
+  font-size: 1rem;
+  color: #e2e8f0;
+}
+
+.navbar-profile-link {
+  color: #f8fafc;
+  font-size: 1.3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.navbar-profile-link:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #38bdf8;
+}
+
+.navbar-logout-btn {
+  background: none;
+  border: none;
+  color: #f8fafc;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  transition: color 0.2s ease, transform 0.1s ease;
+}
+
+.navbar-logout-btn:hover {
+  color: #ef4444; /* red-500 */
+  transform: scale(1.05);
+}
+
+/* Make it responsive */
+@media (max-width: 600px) {
+  .navbar-container {
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+
+  .navbar-user-controls {
+    gap: 0.8rem;
+  }
+}

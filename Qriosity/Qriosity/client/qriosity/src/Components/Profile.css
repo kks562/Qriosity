@@ -1,0 +1,206 @@
+/* 🌟 Profile Page Container */
+.profile-container {
+  max-width: 850px;
+  margin: 50px auto;
+  padding: 2.5rem;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  font-family: "Inter", Arial, sans-serif;
+  transition: all 0.3s ease-in-out;
+}
+
+/* 🧑 Header Section */
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 2.5rem;
+  border-bottom: 1px solid #e8e8e8;
+  padding-bottom: 1.8rem;
+  margin-bottom: 2rem;
+}
+
+.profile-avatar {
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 5px solid #f5f5f5;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease;
+}
+
+.profile-avatar:hover {
+  transform: scale(1.05);
+}
+
+/* 👤 User Info */
+.profile-info h1 {
+  margin: 0 0 0.4rem;
+  font-size: 2.2rem;
+  color: #222;
+}
+
+.profile-info p {
+  margin: 0;
+  color: #777;
+  font-size: 1rem;
+}
+
+/* 📊 Stats Section */
+.profile-stats {
+  display: flex;
+  gap: 1.8rem;
+  margin-top: 1.2rem;
+  flex-wrap: wrap;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #f9fafb;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease;
+}
+
+.stat-item:hover {
+  transform: translateY(-3px);
+}
+
+.stat-item strong {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: #007bff;
+}
+
+.stat-item span {
+  font-size: 0.8rem;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* 🏅 Badges Section */
+.profile-badges,
+.avatar-upload-section {
+  margin-bottom: 1.8rem;
+}
+
+.profile-badges h3,
+.avatar-upload-section h3 {
+  border-bottom: 2px solid #e0e0e0;
+  padding-bottom: 0.6rem;
+  margin-bottom: 1rem;
+  font-size: 1.3rem;
+  color: #333;
+  font-weight: 600;
+}
+
+.badges-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.badge {
+  padding: 0.45rem 1rem;
+  border-radius: 15px;
+  font-weight: 600;
+  color: white;
+  font-size: 0.9rem;
+  letter-spacing: 0.3px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.badge-gold {
+  background: linear-gradient(135deg, #ffb400, #ffdd57);
+}
+.badge-silver {
+  background: linear-gradient(135deg, #b8b8b8, #dcdcdc);
+}
+.badge-bronze {
+  background: linear-gradient(135deg, #cd7f32, #e6a571);
+}
+
+/* 📁 Avatar Upload Section */
+.avatar-upload-section form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.2rem;
+  align-items: center;
+}
+
+/* Hide the default file input */
+.avatar-upload-section input[type="file"] {
+  display: none;
+}
+
+/* Custom file label */
+.avatar-upload-section label {
+  background-color: #007bff;
+  color: white;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+.avatar-upload-section label:hover {
+  background-color: #0056b3;
+  transform: translateY(-1px);
+}
+
+/* Upload button */
+.avatar-upload-section button {
+  padding: 0.6rem 1.3rem;
+  border-radius: 6px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.25s, transform 0.25s;
+}
+
+.avatar-upload-section button:hover:not(:disabled) {
+  background-color: #218838;
+  transform: translateY(-1px);
+}
+
+.avatar-upload-section button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* 🧭 Status Messages */
+.profile-status {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #666;
+  margin-top: 60px;
+}
+
+.profile-status.error {
+  color: #d9534f;
+}
+/* Navbar.css */
+.navbar-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%; /* makes it a circle */
+  object-fit: cover; /* ensures image covers the circle */
+  border: 2px solid #007bff; /* optional border */
+}
+
+.navbar-avatar.placeholder {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #ddd;
+  color: #555;
+  font-size: 18px;
+}
